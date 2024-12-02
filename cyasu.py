@@ -5,11 +5,10 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
-# 加盟店データを準備する（ここでは仮のデータを指定）
-# 加盟店データを準備する（ここでは仮のデータを指定）
+# 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
-"（株）兼中　田中商店",
+        "（株）兼中　田中商店",
 "クワハラ食糧（株）",
 "酒のいろは - （有）鈴木商店",
 "（有）石黒商店",
@@ -860,9 +859,9 @@ import pandas as pd
 "（有）酒蔵大隅家",
 "山口本店",
 "福島酒店（名）"
-    ],  # 店名
-    "lat": [
-       43.0909579,
+        # ここに他の840店分を追加
+    ],
+    "lat": [43.0909579,
 43.1150863,
 43.1096344,
 43.0419761,
@@ -1713,9 +1712,9 @@ import pandas as pd
 31.5931232,
 32.558741,
 31.5341405
-    ],  # 緯度（大阪市北区の適当な座標、他の店も適当な座標を入れます）
-    "lon": [
-141.3425112,
+        # 他の840店分の緯度を追加
+    ],
+    "lon": [141.3425112,
 141.3401039,
 141.3432736,
 141.414893,
@@ -2566,8 +2565,8 @@ import pandas as pd
 130.99871,
 131.6761252,
 131.3722516
-
-    ],  # 経度（同様に適当な座標を入れます）
+        # 他の840店分の経度を追加
+    ],
     "url": ["https://www.meimonshu.jp/modules/sakeshops/index.php?page=shop_detail&sid=1",
 "https://www.meimonshu.jp/modules/sakeshops/index.php?page=shop_detail&sid=2",
 "https://www.meimonshu.jp/modules/sakeshops/index.php?page=shop_detail&sid=3",
@@ -3419,7 +3418,8 @@ import pandas as pd
 "https://www.meimonshu.jp/modules/sakeshops/index.php?page=shop_detail&sid=1444",
 "https://www.meimonshu.jp/modules/sakeshops/index.php?page=shop_detail&sid=1219",
 "https://www.meimonshu.jp/modules/sakeshops/index.php?page=shop_detail&sid=1018"
-    ]  # その他の情報（TELなど）
+        # 他の840店分のURLを追加
+    ]
 })
 
 # OpenCage APIの設定
@@ -3464,11 +3464,12 @@ if station_name:
         for _, store in 加盟店_data.iterrows():
             store_location = (store["lat"], store["lon"])
             distance = geodesic((search_lat, search_lon), store_location).km
+            # 距離が10km以内の店舗をマーカーで追加
             if distance <= 10:
                 stores_in_range += 1
                 folium.Marker(
                     store_location,
-                    popup=f"<a href='#{store['url']}' target='_blank'>{store['name']}</a>",
+                    popup=f"<a href='{store['url']}' target='_blank'>{store['name']}</a> ({distance:.2f}km)",
                     icon=folium.Icon(color="green")
                 ).add_to(m)
 
