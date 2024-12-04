@@ -3522,4 +3522,4 @@ else:
     m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 初期地図の中心（東京駅）
 
 # 地図を表示
-st_folium(m, width=1000, height=800)
+st_folium(m, width=700, height=1200)
