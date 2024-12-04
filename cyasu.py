@@ -3521,5 +3521,12 @@ else:
     # 駅が入力されていない場合の初期地図
     m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 初期地図の中心（東京駅）
 
-# 地図を表示
-st_folium(m, width=1200, height=600)
+# レスポンシブな地図表示
+import streamlit as st
+
+# デバイス幅に応じた地図のサイズ
+if st.sidebar.checkbox("スマートフォン向け表示"):
+    st_folium(m, width=800, height=600)
+else:
+    st_folium(m, width=1400, height=800)
+
