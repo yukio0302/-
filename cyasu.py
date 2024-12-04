@@ -3427,8 +3427,8 @@ api_key = "d63325663fe34549885cd31798e50eb2"  # OpenCageで取得したAPIキー
 geocoder = OpenCageGeocode(api_key)
 
 # Streamlitアプリの設定
-st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
-st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
+st.title("立春朝搾りが買える！最寄りの名門酒会加盟店検索アプリ")
+st.write("最寄り駅を入力すると、10km圏内の加盟店を表示します。")
 
 # 最寄り駅の入力フォーム
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
