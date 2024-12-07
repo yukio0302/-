@@ -4273,6 +4273,7 @@ import pandas as pd
 "野村自慢851"]  # 加えた取り扱い銘柄情報
 })
 
+
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4332,13 +4333,15 @@ if station_name:
 
         if not nearby_stores.empty:
             for _, store in nearby_stores.iterrows():
-                # Popup内容をHTMLで指定し、幅を広げる
+                # Popup内容をHTMLで指定し、取り扱い銘柄を赤背景＋白文字で表示
                 popup_html = f"""
-                <div style="width: 200px; background-color: red; color: white; padding: 10px; border-radius: 5px;">
+                <div style="width: 200px;">
                     <strong>{store['name']}</strong><br>
                     距離: {store['distance']:.2f} km<br>
-                    取り扱い銘柄: {store['銘柄']}<br>
-                    <a href="{store['url']}" target="_blank" style="color: white; text-decoration: underline;">リンクはこちら</a>
+                    <span style="background-color: red; color: white; padding: 3px; border-radius: 3px;">
+                        {store['銘柄']}
+                    </span><br>
+                    <a href="{store['url']}" target="_blank" style="color: blue; text-decoration: underline;">リンクはこちら</a>
                 </div>
                 """
                 popup = folium.Popup(popup_html, max_width=200)
