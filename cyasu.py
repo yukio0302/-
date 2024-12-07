@@ -4339,7 +4339,7 @@ if station_name:
                     <strong>{store['name']}</strong><br>
                     距離: {store['distance']:.2f} km<br>
                     <span style="background-color: red; color: white; padding: 3px; border-radius: 3px;">
-                        {store['銘柄']}
+                       取り扱い銘柄:  {store['銘柄']}
                     </span><br>
                     <a href="{store['url']}" target="_blank" style="color: blue; text-decoration: underline;">リンクはこちら</a>
                 </div>
