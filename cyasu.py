@@ -5,7 +5,7 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
-# 初期化（セッションステートの設定）
+# セッションの初期化
 if 'station_name' not in st.session_state:
     st.session_state.station_name = ""
 if 'prefecture' not in st.session_state:
@@ -4281,7 +4281,6 @@ if 'selected_brand' not in st.session_state:
 "野村自慢851"]  # 加えた取り扱い銘柄情報
 })
 
-
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4290,11 +4289,9 @@ geocoder = OpenCageGeocode(api_key)
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
 st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
 
-# 検索情報のクリアボタン
+# 検索情報のクリアボタン（ページ全体をリフレッシュする）
 if st.button("検索情報のクリア"):
-    st.session_state.station_name = ""
-    st.session_state.prefecture = ""
-    st.session_state.selected_brand = None
+    st.session_state.clear()
     st.experimental_rerun()
 
 # 駅名の入力
@@ -4338,16 +4335,18 @@ if station_name:
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
             if not nearby_stores.empty:
-                # 取り扱い銘柄を表示
+                # 取り扱い銘柄を表示（ボタンを横並びに表示）
                 unique_brands = nearby_stores["銘柄"].unique()
                 st.subheader("このエリアの取り扱い銘柄一覧")
                 
-                for brand in unique_brands:
-                    if st.button(f"【{brand}】を表示する"):
-                        st.session_state.selected_brand = brand
-                        nearby_stores = nearby_stores[nearby_stores["銘柄"] == brand]
-                        st.write(f"**『{brand}』の取り扱い店舗を表示します**")
-                        break
+                col1, col2, col3 = st.columns(3)
+                for i, brand in enumerate(unique_brands):
+                    with [col1, col2, col3][i % 3]:
+                        if st.button(f"【{brand}】を表示する"):
+                            st.session_state.selected_brand = brand
+                            nearby_stores = nearby_stores[nearby_stores["銘柄"] == brand]
+                            st.write(f"**『{brand}』の取り扱い店舗を表示します**")
+                            break
 
                 for _, store in nearby_stores.iterrows():
                     # Popup内容をHTMLで指定し、取り扱い銘柄を赤背景＋白文字で表示
