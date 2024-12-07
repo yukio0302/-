@@ -4,6 +4,7 @@ from streamlit_folium import st_folium
 from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
+
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
@@ -3441,21 +3442,20 @@ if station_name:
     if results:
         # 候補が複数ある場合
         if len(results) > 1:
-            st.warning("候補が複数見つかりました。エリア情報を入力してください。")
+            st.warning("候補が複数見つかりました。都道府県を入力してください。")
             
-            # エリア（都道府県と市区町村）の入力欄を表示
+            # 都道府県の入力欄を表示
             prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
-            city = st.text_input("市区町村を入力してください（例: 目黒区）:")
 
-            # エリア情報が入力された場合に再検索
             if prefecture:
-                refined_query = f"{station_name}駅, {city}, {prefecture}" if city else f"{station_name}駅, {prefecture}"
-                refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=5)
+                # 都道府県を加えて再検索
+                refined_query = f"{station_name}駅, {prefecture}"
+                refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=1)
 
                 if refined_results:
                     results = refined_results
                 else:
-                    st.error("エリア情報で再検索しましたが、候補が見つかりませんでした。")
+                    st.error("都道府県で再検索しましたが、候補が見つかりませんでした。")
                     results = []
         else:
             st.success("1つの候補が見つかりました。")
@@ -3503,7 +3503,7 @@ if station_name:
         st.error("指定した駅が見つかりませんでした。再度試してください。")
         m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を初期中心に設定
     else:
-        # 候補が複数ある場合、エリア入力待ち
+        # 候補が複数ある場合、都道府県入力待ち
         m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を初期中心に設定
 else:
     # 初期状態では地図のみ表示
