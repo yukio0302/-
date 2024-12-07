@@ -4294,15 +4294,11 @@ if station_name:
         # 候補が複数ある場合
         if len(results) > 1:
             st.warning("候補が複数見つかりました。都道府県を入力してください。")
-            
-            # 都道府県の入力欄を表示
             prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
 
             if prefecture:
-                # 都道府県を加えて再検索
                 refined_query = f"{station_name}駅, {prefecture}"
                 refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=1)
-
                 if refined_results:
                     results = refined_results
                 else:
@@ -4311,7 +4307,6 @@ if station_name:
         else:
             st.success("1つの候補が見つかりました。")
     
-    # 候補が1つまたは絞り込まれた場合
     if len(results) == 1:
         selected_result = results[0]
         search_lat = selected_result['geometry']['lat']
@@ -4331,21 +4326,27 @@ if station_name:
         )
         nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-        # 取り扱い銘柄のリストを作成
-        all_brands = list(加盟店_data["銘柄"].unique())
-        
-        # デフォルトでは全ての取り扱い銘柄を表示
-        selected_brand = st.radio("取り扱い銘柄を選択してください:", options=["すべて"] + all_brands, horizontal=True)
+        if not nearby_stores.empty:
+            # 取り扱い銘柄の一覧を抽出
+            unique_brands = nearby_stores["銘柄"].unique()
+            selected_brand = st.sidebar.selectbox("銘柄を選択してください", ["すべての店舗"] + list(unique_brands))
 
-        # フィルタ処理（すべてを選択した場合はフィルターなし）
-        if selected_brand != "すべて":
-            filtered_stores = nearby_stores[nearby_stores["銘柄"] == selected_brand]
-        else:
-            filtered_stores = nearby_stores
+            # 選択した銘柄でフィルタリング（デフォルトは全て表示）
+            if selected_brand != "すべての店舗":
+                filtered_stores = nearby_stores[nearby_stores["銘柄"] == selected_brand]
+            else:
+                filtered_stores = nearby_stores
 
-        if not filtered_stores.empty:
+            # 銘柄ボタンの表示（横並び）
+            st.write("### 取り扱い銘柄一覧")
+            cols = st.columns(len(unique_brands))
+            for i, brand in enumerate(unique_brands):
+                if cols[i].button(brand):
+                    selected_brand = brand
+                    filtered_stores = nearby_stores[nearby_stores["銘柄"] == brand]
+
+            # フィルタ後の店舗を地図に追加
             for _, store in filtered_stores.iterrows():
-                # Popup内容をHTMLで指定し、取り扱い銘柄を赤背景＋白文字で表示
                 popup_html = f"""
                 <div style="width: 200px;">
                     <strong>{store['name']}</strong><br>
@@ -4362,19 +4363,17 @@ if station_name:
                 folium.Marker(
                     [store["lat"], store["lon"]],
                     popup=popup,
-                    icon=folium.Icon(color="green" if selected_brand == "すべて" else "blue")
+                    icon=folium.Icon(color="green" if selected_brand == "すべての店舗" else "blue")
                 ).add_to(m)
         else:
             st.write(f"{station_name}駅周辺10km以内に加盟店はありません。")
     elif not results:
         st.error("指定した駅が見つかりませんでした。再度試してください。")
-        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を初期中心に設定
+        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
     else:
-        # 候補が複数ある場合、都道府県入力待ち
-        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を初期中心に設定
+        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
 else:
-    # 初期状態では地図のみ表示
-    m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を初期中心に設定
+    m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
 
 # 地図を表示
-st_folium(m, width=700, height=500)
+st_folium(m, width=800, height=500)
