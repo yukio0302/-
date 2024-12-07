@@ -11,7 +11,9 @@ if 'station_name' not in st.session_state:
 if 'prefecture' not in st.session_state:
     st.session_state.prefecture = ""
 if 'final_station' not in st.session_state:
-    st.session_state.final_station = None  # 最終確定された駅情報を保存
+    st.session_state.final_station = None  # 最終的な駅情報
+if 'multiple_candidates' not in st.session_state:
+    st.session_state.multiple_candidates = False  # 複数候補があるかどうかのフラグ
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
@@ -4292,7 +4294,7 @@ st.write("最寄り駅を入力して、10km圏内の加盟店を検索します
 
 # 検索情報のクリアボタン（ページ全体をリフレッシュする）
 if st.button("検索情報のクリア"):
-    for key in ['station_name', 'prefecture', 'final_station']:
+    for key in ['station_name', 'prefecture', 'final_station', 'multiple_candidates']:
         del st.session_state[key]
     st.experimental_rerun()
 
@@ -4300,13 +4302,14 @@ if st.button("検索情報のクリア"):
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:", value=st.session_state.station_name)
 st.session_state.station_name = station_name
 
-# 駅情報の確定がまだ行われていない場合のみAPIリクエストを行う
+# 駅情報が確定していなければAPIリクエストを行う
 if station_name and not st.session_state.final_station:
     search_query = station_name if "駅" in station_name else station_name + "駅"
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
     if results:
         if len(results) > 1 and not st.session_state.prefecture:
+            st.session_state.multiple_candidates = True  # 複数候補がある場合のフラグを有効化
             st.write(f"複数の候補が見つかりました。「{station_name}駅」の都道府県を入力してください。")
             prefecture = st.text_input("都道府県を入力してください（例：東京都、大阪府など）:", value=st.session_state.prefecture)
             st.session_state.prefecture = prefecture
@@ -4316,7 +4319,8 @@ if station_name and not st.session_state.final_station:
                 results = geocoder.geocode(query=search_query, countrycode='JP', limit=1)
         
         if results:
-            st.session_state.final_station = results[0]  # これで駅情報が確定する
+            st.session_state.final_station = results[0]  # 駅情報の確定
+            st.session_state.multiple_candidates = False  # フォームが表示されないようにする
 
 if st.session_state.final_station:
     station_info = st.session_state.final_station
@@ -4343,7 +4347,7 @@ if st.session_state.final_station:
             <div style="width: 200px;">
                 <strong>{store['name']}</strong><br>
                 距離: {store['distance']:.2f} km<br>
-                取り扱い銘柄： 
+                取り扱い銘柄：
                 <span style="background-color: red; color: white; padding: 3px; border-radius: 3px;">
                     {store['銘柄']}
                 </span><br>
