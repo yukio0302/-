@@ -12,6 +12,8 @@ if 'prefecture' not in st.session_state:
     st.session_state.prefecture = ""
 if 'selected_brand' not in st.session_state:
     st.session_state.selected_brand = None
+if 'selected_location' not in st.session_state:
+    st.session_state.selected_location = None
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
@@ -4281,6 +4283,7 @@ if 'selected_brand' not in st.session_state:
 "野村自慢851"]  # 加えた取り扱い銘柄情報
 })
 
+
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4291,8 +4294,7 @@ st.write("最寄り駅を入力して、10km圏内の加盟店を検索します
 
 # 検索情報のクリアボタン（ページ全体をリフレッシュする）
 if st.button("検索情報のクリア"):
-    st.session_state.clear()
-    st.experimental_rerun()
+    st.experimental_rerun()  # 完全リロード
 
 # 駅名の入力
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:", value=st.session_state.station_name)
@@ -4316,9 +4318,9 @@ if station_name:
                 results = geocoder.geocode(query=search_query, countrycode='JP', limit=1)
         
         if results:
-            selected_result = results[0]
-            search_lat = selected_result['geometry']['lat']
-            search_lon = selected_result['geometry']['lng']
+            st.session_state.selected_location = results[0]
+            search_lat = st.session_state.selected_location['geometry']['lat']
+            search_lon = st.session_state.selected_location['geometry']['lng']
 
             # 地図の作成
             m = folium.Map(location=[search_lat, search_lon], zoom_start=13)
@@ -4342,7 +4344,7 @@ if station_name:
                 col1, col2, col3 = st.columns(3)
                 for i, brand in enumerate(unique_brands):
                     with [col1, col2, col3][i % 3]:
-                        if st.button(f"【{brand}】を表示する"):
+                        if st.button(f"【{brand}】を表示する", key=brand):
                             st.session_state.selected_brand = brand
                             nearby_stores = nearby_stores[nearby_stores["銘柄"] == brand]
                             st.write(f"**『{brand}』の取り扱い店舗を表示します**")
