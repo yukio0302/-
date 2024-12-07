@@ -4285,34 +4285,16 @@ st.write("最寄り駅を入力して、10km圏内の加盟店を検索します
 # 駅名の入力
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
+# 「検索情報のクリア」ボタン
+if st.button("検索情報のクリア"):
+    st.experimental_rerun()
+
 # 初回検索
 if station_name:
     search_query = station_name if "駅" in station_name else station_name + "駅"
-    results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
-
-    if results:
-        # 候補が複数ある場合
-        if len(results) > 1:
-            st.warning("候補が複数見つかりました。都道府県を入力してください。")
-            
-            # 都道府県の入力欄を表示
-            prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
-
-            if prefecture:
-                # 都道府県を加えて再検索
-                refined_query = f"{station_name}駅, {prefecture}"
-                refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=1)
-
-                if refined_results:
-                    results = refined_results
-                else:
-                    st.error("都道府県で再検索しましたが、候補が見つかりませんでした。")
-                    results = []
-        else:
-            st.success("1つの候補が見つかりました。")
+    results = geocoder.geocode(query=search_query, countrycode='JP', limit=1)
     
-    # 候補が1つまたは絞り込まれた場合
-    if len(results) == 1:
+    if results:
         selected_result = results[0]
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
@@ -4332,6 +4314,17 @@ if station_name:
         nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
         if not nearby_stores.empty:
+            # 取り扱い銘柄を表示
+            unique_brands = nearby_stores["銘柄"].unique()
+            st.subheader("このエリアの取り扱い銘柄一覧")
+            
+            for brand in unique_brands:
+                if st.button(f"【{brand}】を表示する"):
+                    selected_brand = brand
+                    nearby_stores = nearby_stores[nearby_stores["銘柄"] == selected_brand]
+                    st.write(f"**『{brand}』の取り扱い店舗を表示します**")
+                    break
+
             for _, store in nearby_stores.iterrows():
                 # Popup内容をHTMLで指定し、取り扱い銘柄を赤背景＋白文字で表示
                 popup_html = f"""
@@ -4354,11 +4347,8 @@ if station_name:
                 ).add_to(m)
         else:
             st.write(f"{station_name}駅周辺10km以内に加盟店はありません。")
-    elif not results:
-        st.error("指定した駅が見つかりませんでした。再度試してください。")
-        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を初期中心に設定
     else:
-        # 候補が複数ある場合、都道府県入力待ち
+        st.error("指定した駅が見つかりませんでした。再度試してください。")
         m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を初期中心に設定
 else:
     # 初期状態では地図のみ表示
