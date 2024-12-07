@@ -4,7 +4,6 @@ from streamlit_folium import st_folium
 from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
-
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
@@ -3422,6 +3421,7 @@ import pandas as pd
     ]
 })
 
+
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -3430,28 +3430,39 @@ geocoder = OpenCageGeocode(api_key)
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
 st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
 
-# 駅名、都道府県、市区町村を入力
+# 駅名の入力
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
-prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
-city = st.text_input("市区町村を入力してください（例: 目黒区）:")
 
-if station_name and prefecture:
-    # 入力された情報を元に検索クエリを作成
-    search_query = f"{station_name}駅, {city}, {prefecture}" if city else f"{station_name}駅, {prefecture}"
+# 初回検索
+if station_name:
+    search_query = station_name if "駅" in station_name else station_name + "駅"
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
     if results:
-        # 複数候補がある場合はリストから選択
-        options = [
-            f"{result['formatted']} (緯度: {result['geometry']['lat']}, 経度: {result['geometry']['lng']})"
-            for result in results
-        ]
-        selected_option = st.selectbox(
-            "検索結果が複数見つかりました。正しい場所を選択してください:", options
-        )
+        # 候補が複数ある場合
+        if len(results) > 1:
+            st.warning("候補が複数見つかりました。エリア情報を入力してください。")
+            
+            # エリア（都道府県と市区町村）の入力欄を表示
+            prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
+            city = st.text_input("市区町村を入力してください（例: 目黒区）:")
 
-        # 選択した候補の緯度と経度を取得
-        selected_result = results[options.index(selected_option)]
+            # エリア情報が入力された場合に再検索
+            if prefecture:
+                refined_query = f"{station_name}駅, {city}, {prefecture}" if city else f"{station_name}駅, {prefecture}"
+                refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=5)
+
+                if refined_results:
+                    results = refined_results
+                else:
+                    st.error("エリア情報で再検索しましたが、候補が見つかりませんでした。")
+                    results = []
+        else:
+            st.success("1つの候補が見つかりました。")
+    
+    # 候補が1つまたは絞り込まれた場合
+    if len(results) == 1:
+        selected_result = results[0]
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
 
@@ -3488,8 +3499,11 @@ if station_name and prefecture:
                 ).add_to(m)
         else:
             st.write(f"{station_name}駅周辺10km以内に加盟店はありません。")
+    elif not results:
+        st.error("指定した駅が見つかりませんでした。再度試してください。")
+        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を初期中心に設定
     else:
-        st.error("指定した駅が見つかりませんでした。入力内容を確認してください。")
+        # 候補が複数ある場合、エリア入力待ち
         m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を初期中心に設定
 else:
     # 初期状態では地図のみ表示
