@@ -4332,7 +4332,7 @@ if station_name or (lat and lon):
 
     if results:
         if len(results) > 1:
-            st.warning("候補が複数見つかりました。都道府県を入力してください。")
+            st.warning("他にも似ている駅名があるようです。都道府県を入力してください。")
             prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
 
             if prefecture:
