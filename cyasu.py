@@ -4282,79 +4282,57 @@ geocoder = OpenCageGeocode(api_key)
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
 st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
 
-# 🚀 **現在地取得ボタン**
-if "current_location" not in st.session_state:
-    st.session_state["current_location"] = None
-
-st.markdown(
-    """
-    <script>
-        async function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        document.getElementById("latitude").value = lat;
-                        document.getElementById("longitude").value = lon;
-                        document.getElementById("location-form").submit();
-                    },
-                    (error) => {
-                        alert("位置情報の取得がブロックされました。位置情報の使用を許可してください。");
-                    }
-                );
-            } else {
-                alert("このブラウザでは位置情報の取得がサポートされていません。");
-            }
-        }
-    </script>
-    <form id="location-form" method="get">
-        <input type="hidden" id="latitude" name="lat">
-        <input type="hidden" id="longitude" name="lon">
-        <button type="button" onclick="getLocation()">📍 現在地を取得する</button>
-    </form>
-    """,
-    unsafe_allow_html=True
-)
-
-# URLのパラメータから現在地の情報を取得
-lat = st.experimental_get_query_params().get('lat', [None])[0]
-lon = st.experimental_get_query_params().get('lon', [None])[0]
-
 # 駅名の入力
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
-
-if lat and lon:
-    st.session_state["current_location"] = (float(lat), float(lon))
 
 if station_name:
     search_query = f"{station_name}駅, 日本"
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
     if results:
-        if len(results) > 1:
+        # 1️⃣ 候補リストから、"駅"が含まれている、かつ駅名が"formatted"の中にあるものをフィルタ
+        filtered_results = [
+            result for result in results
+            if '駅' in result['formatted'] or 'Station' in result['formatted']
+        ]
+
+        if len(filtered_results) == 1:
+            st.success("1つの候補が見つかりました。")
+            best_result = filtered_results[0]
+        elif len(filtered_results) > 1:
             st.warning("候補が複数見つかりました。都道府県を入力してください。")
+            
+            # 2️⃣ 都道府県の入力
             prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
 
             if prefecture:
                 refined_query = f"{station_name}駅, {prefecture}, 日本"
                 refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=5)
+                
                 if refined_results:
-                    results = refined_results
+                    filtered_results = [
+                        result for result in refined_results 
+                        if '駅' in result['formatted'] or 'Station' in result['formatted']
+                    ]
+                    if len(filtered_results) == 1:
+                        best_result = filtered_results[0]
+                    else:
+                        st.error("指定された都道府県では1つの駅が特定できませんでした。")
+                        best_result = None
+                else:
+                    st.error("都道府県指定で検索しましたが、候補が見つかりませんでした。")
+                    best_result = None
         else:
-            st.success("1つの候補が見つかりました。")
-    
-    if results:
-        best_result = results[0]  # 最も適切な候補を選択
-        for result in results:
-            if "東京都" in result['formatted']:  # 都道府県に基づくフィルタ
-                best_result = result
-                break
+            st.error("指定した駅が見つかりませんでした。")
+            best_result = None
+    else:
+        st.error("指定した駅が見つかりませんでした。")
+        best_result = None
 
+    if best_result:
         search_lat = best_result['geometry']['lat']
         search_lon = best_result['geometry']['lng']
 
-        # 地図を作成
         m = folium.Map(location=[search_lat, search_lon], zoom_start=15)
         folium.Marker(
             [search_lat, search_lon],
@@ -4362,7 +4340,7 @@ if station_name:
             icon=folium.Icon(color="red", icon="info-sign")
         ).add_to(m)
 
-        # 加盟店をフィルタ
+        # 加盟店のフィルタ
         加盟店_data["distance"] = 加盟店_data.apply(
             lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
         )
@@ -4389,7 +4367,6 @@ if station_name:
         else:
             st.write(f"{station_name}駅周辺10km以内に加盟店はありません。")
     else:
-        st.error("指定した駅が見つかりませんでした。")
         m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
 else:
     m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
