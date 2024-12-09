@@ -4273,6 +4273,7 @@ import pandas as pd
 "野村自慢11"]  # 加えた取り扱い銘柄情報
 })
 
+
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4280,6 +4281,9 @@ geocoder = OpenCageGeocode(api_key)
 # Streamlitアプリの設定
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
 st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
+
+# 駅名の入力
+station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
 # 位置情報取得用のJavaScriptを追加
 st.markdown(
@@ -4317,9 +4321,6 @@ st.markdown(
 lat = st.experimental_get_query_params().get('lat', [None])[0]
 lon = st.experimental_get_query_params().get('lon', [None])[0]
 
-# 駅名の入力
-station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
-
 # 検索の実行
 if station_name or (lat and lon):
     if station_name:
@@ -4351,7 +4352,8 @@ if station_name or (lat and lon):
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
 
-        m = folium.Map(location=[search_lat, search_lon], zoom_start=13)
+        # 検索した駅を中心にする
+        m = folium.Map(location=[search_lat, search_lon], zoom_start=15)  # 駅を中心に設定
         folium.Marker(
             [search_lat, search_lon],
             popup=f"{station_name}駅",
@@ -4389,4 +4391,5 @@ if station_name or (lat and lon):
 else:
     m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
 
-st_folium(m, width=700, height=500)
+# 地図の表示
+st_folium(m, width="100%", height=500)  # 幅を100%にしてスマホでも見やすく修正
