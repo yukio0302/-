@@ -1,7 +1,7 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import folium
 from streamlit_folium import st_folium
-from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
@@ -4274,66 +4274,58 @@ import pandas as pd
 })
 
 
-# OpenCage APIの設定
-api_key = "d63325663fe34549885cd31798e50eb2"
-geocoder = OpenCageGeocode(api_key)
-
-# Streamlitアプリの設定
+# Streamlitアプリのタイトル
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
-st.write("現在地の緯度・経度を入力するか、最寄り駅を入力して10km圏内の加盟店を検索します。")
+st.write("📍 **現在地を取得するか、最寄り駅を入力して10km圏内の加盟店を検索できます。**")
 
-# 現在地の緯度・経度を入力する欄
-st.write("### 🔍 **現在地を入力**")
-latitude = st.text_input("緯度を入力してください（例: 35.681236）")
-longitude = st.text_input("経度を入力してください（例: 139.767125）")
+# 現在地取得ボタン
+st.write("### 📍 **現在地の自動取得**")
+# HTMLとJavaScriptを埋め込んで現在地を取得
+location = components.html("""
+    <script>
+        function sendLocationToStreamlit() {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const streamlitData = {latitude: lat, longitude: lon};
+                    const message = JSON.stringify(streamlitData);
+                    window.parent.postMessage(message, "*");
+                },
+                (error) => {
+                    alert("位置情報が取得できませんでした。ブラウザの権限を確認してください。");
+                }
+            );
+        }
+    </script>
+    <button onclick="sendLocationToStreamlit()">📍 現在地を取得</button>
+    """, height=50)
 
-# 駅名の入力
-st.write("### 🚉 **駅名を入力**")
-station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
+# 現在の緯度・経度を受け取る
+latitude = st.session_state.get('latitude', None)
+longitude = st.session_state.get('longitude', None)
 
-# 検索ロジック
-if latitude and longitude:
+# JavaScriptから位置情報を受け取る仕組み
+if 'latitude' not in st.session_state:
+    st.session_state['latitude'] = None
+if 'longitude' not in st.session_state:
+    st.session_state['longitude'] = None
+
+# Streamlitのクエリパラメータから位置情報を取得
+query_params = st.experimental_get_query_params()
+if 'latitude' in query_params and 'longitude' in query_params:
     try:
-        search_lat = float(latitude)
-        search_lon = float(longitude)
-        st.success(f"現在地の緯度: {search_lat}, 経度: {search_lon} を使用します。")
+        st.session_state['latitude'] = float(query_params['latitude'][0])
+        st.session_state['longitude'] = float(query_params['longitude'][0])
+        st.success(f"現在地の緯度: {st.session_state['latitude']}, 経度: {st.session_state['longitude']}")
     except ValueError:
-        st.error("正しい緯度と経度を入力してください。")
-        search_lat = None
-        search_lon = None
-elif station_name:
-    search_query = station_name if "駅" in station_name else station_name + "駅"
-    results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
+        st.error("緯度と経度の形式が正しくありません。")
 
-    if results:
-        if len(results) > 1:
-            st.warning("候補が複数見つかりました。都道府県を入力してください。")
-            prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
+# 地図の表示
+if st.session_state['latitude'] and st.session_state['longitude']:
+    search_lat = st.session_state['latitude']
+    search_lon = st.session_state['longitude']
 
-            if prefecture:
-                refined_query = f"{station_name}駅, {prefecture}"
-                refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=1)
-                if refined_results:
-                    results = refined_results
-                else:
-                    st.error("都道府県で再検索しましたが、候補が見つかりませんでした。")
-                    results = []
-        else:
-            st.success("1つの候補が見つかりました。")
-    
-    if len(results) == 1:
-        selected_result = results[0]
-        search_lat = selected_result['geometry']['lat']
-        search_lon = selected_result['geometry']['lng']
-    else:
-        search_lat = None
-        search_lon = None
-else:
-    search_lat = None
-    search_lon = None
-
-# 地図の初期化
-if search_lat is not None and search_lon is not None:
     m = folium.Map(location=[search_lat, search_lon], zoom_start=13)
     folium.Marker(
         [search_lat, search_lon],
@@ -4348,22 +4340,7 @@ if search_lat is not None and search_lon is not None:
     nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
     if not nearby_stores.empty:
-        unique_brands = nearby_stores["銘柄"].unique()
-        selected_brand = st.sidebar.selectbox("銘柄を選択してください", ["すべての店舗"] + list(unique_brands))
-
-        st.write("### 取り扱い銘柄一覧")
-        cols = st.columns(len(unique_brands))
-        
-        for i, brand in enumerate(unique_brands):
-            if cols[i].button(brand):
-                selected_brand = brand
-
-        if selected_brand != "すべての店舗":
-            filtered_stores = nearby_stores[nearby_stores["銘柄"] == selected_brand]
-        else:
-            filtered_stores = nearby_stores
-
-        for _, store in filtered_stores.iterrows():
+        for _, store in nearby_stores.iterrows():
             popup_html = f"""
             <div style="width: 200px;">
                 <strong>{store['name']}</strong><br>
@@ -4384,6 +4361,7 @@ if search_lat is not None and search_lon is not None:
     else:
         st.write(f"この場所の周辺10km以内に加盟店はありません。")
 else:
+    # 位置情報が取得できていない場合は、地図の初期状態を東京駅にする
     m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
 
 # 地図を表示
