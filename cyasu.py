@@ -4289,13 +4289,21 @@ if station_name:
     search_query = f"{station_name}駅, 日本"
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
-    if results:
-        # 1️⃣ 候補リストから、"駅"が含まれている、かつ駅名が"formatted"の中にあるものをフィルタ
-        filtered_results = [
-            result for result in results
-            if '駅' in result['formatted'] or 'Station' in result['formatted']
-        ]
+    # フィルタリングを強化
+    def filter_station_results(results, station_name, prefecture=None):
+        filtered = []
+        for result in results:
+            formatted = result['formatted']
+            if station_name in formatted and '駅' in formatted:
+                if prefecture and prefecture not in formatted:
+                    continue
+                filtered.append(result)
+        return filtered
 
+    if results:
+        # 1️⃣ 駅名と都道府県をもとに絞り込む
+        filtered_results = filter_station_results(results, station_name)
+        
         if len(filtered_results) == 1:
             st.success("1つの候補が見つかりました。")
             best_result = filtered_results[0]
@@ -4310,10 +4318,7 @@ if station_name:
                 refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=5)
                 
                 if refined_results:
-                    filtered_results = [
-                        result for result in refined_results 
-                        if '駅' in result['formatted'] or 'Station' in result['formatted']
-                    ]
+                    filtered_results = filter_station_results(refined_results, station_name, prefecture)
                     if len(filtered_results) == 1:
                         best_result = filtered_results[0]
                     else:
@@ -4349,15 +4354,13 @@ if station_name:
         if not nearby_stores.empty:
             for _, store in nearby_stores.iterrows():
                 popup_html = f"""
-                <div style="width: 200px;">
-                    <strong>{store['name']}</strong><br>
-                    距離: {store['distance']:.2f} km<br>
-                    取り扱い銘柄： 
-                    <span style="background-color: red; color: white; padding: 3px; border-radius: 3px;">
-                        {store['銘柄']}
-                    </span><br>
-                    <a href="{store['url']}" target="_blank" style="color: blue; text-decoration: underline;">リンクはこちら</a>
-                </div>
+                <strong>{store['name']}</strong><br>
+                距離: {store['distance']:.2f} km<br>
+                取り扱い銘柄： 
+                <span style="background-color: red; color: white; padding: 3px; border-radius: 3px;">
+                    {store['銘柄']}
+                </span><br>
+                <a href="{store['url']}" target="_blank">リンクはこちら</a>
                 """
                 folium.Marker(
                     [store["lat"], store["lon"]],
