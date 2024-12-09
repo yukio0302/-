@@ -4288,8 +4288,8 @@ station_name = st.text_input("最寄り駅名を入力してください（「�
 if station_name:
     search_query = f"{station_name}駅, 日本"
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
-
-    # フィルタリングを強化
+    
+    # 駅名と都道府県でフィルタリング
     def filter_station_results(results, station_name, prefecture=None):
         filtered = []
         for result in results:
@@ -4301,16 +4301,15 @@ if station_name:
         return filtered
 
     if results:
-        # 1️⃣ 駅名と都道府県をもとに絞り込む
         filtered_results = filter_station_results(results, station_name)
-        
+
         if len(filtered_results) == 1:
             st.success("1つの候補が見つかりました。")
             best_result = filtered_results[0]
         elif len(filtered_results) > 1:
             st.warning("候補が複数見つかりました。都道府県を入力してください。")
             
-            # 2️⃣ 都道府県の入力
+            # 都道府県の入力
             prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
 
             if prefecture:
