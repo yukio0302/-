@@ -4273,7 +4273,6 @@ import pandas as pd
 "野村自慢11"]  # 加えた取り扱い銘柄情報
 })
 
-
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4286,7 +4285,6 @@ st.write("最寄り駅を入力して、10km圏内の加盟店を検索します
 if "current_location" not in st.session_state:
     st.session_state["current_location"] = None
 
-# 現在地取得用のJavaScriptを埋め込む
 st.markdown(
     """
     <script>
@@ -4322,13 +4320,12 @@ st.markdown(
 lat = st.experimental_get_query_params().get('lat', [None])[0]
 lon = st.experimental_get_query_params().get('lon', [None])[0]
 
-# 検索用の最寄り駅入力
+# 駅名の入力
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
 if lat and lon:
     st.session_state["current_location"] = (float(lat), float(lon))
 
-# 検索処理
 if station_name or st.session_state["current_location"]:
     if station_name:
         search_query = station_name if "駅" in station_name else station_name + "駅"
@@ -4370,9 +4367,21 @@ if station_name or st.session_state["current_location"]:
 
         if not nearby_stores.empty:
             for _, store in nearby_stores.iterrows():
+                popup_html = f"""
+                <div style="width: 200px;">
+                    <strong>{store['name']}</strong><br>
+                    距離: {store['distance']:.2f} km<br>
+                    取り扱い銘柄： 
+                    <span style="background-color: red; color: white; padding: 3px; border-radius: 3px;">
+                        {store['銘柄']}
+                    </span><br>
+                    <a href="{store['url']}" target="_blank" style="color: blue; text-decoration: underline;">リンクはこちら</a>
+                </div>
+                """
+                popup = folium.Popup(popup_html, max_width=200)
                 folium.Marker(
                     [store["lat"], store["lon"]],
-                    popup=f"{store['name']} - 距離: {store['distance']:.2f} km",
+                    popup=popup,
                     icon=folium.Icon(color="green")
                 ).add_to(m)
     else:
