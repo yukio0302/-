@@ -4285,66 +4285,81 @@ st.write("最寄り駅を入力して、10km圏内の加盟店を検索します
 # 駅名の入力
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
-if station_name:
-    search_query = f"{station_name}駅, 日本"
-    results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
-    
-    # 駅名と都道府県でフィルタリング
-    def filter_station_results(results, station_name, prefecture=None):
-        filtered = []
-        for result in results:
-            formatted = result['formatted']
-            if station_name in formatted and '駅' in formatted:
-                if prefecture and prefecture not in formatted:
-                    continue
-                filtered.append(result)
-        return filtered
+# 位置情報取得用のJavaScriptを追加
+st.markdown(
+    """
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        document.getElementById("latitude").value = lat;
+                        document.getElementById("longitude").value = lon;
+                        document.getElementById("location-form").submit();
+                    },
+                    (error) => {
+                        alert("位置情報の取得がブロックされました。位置情報の使用を許可してください。");
+                    }
+                );
+            } else {
+                alert("このブラウザでは位置情報の取得がサポートされていません。");
+            }
+        }
+    </script>
+    <form id="location-form" method="get">
+        <input type="hidden" id="latitude" name="lat">
+        <input type="hidden" id="longitude" name="lon">
+        <button type="button" onclick="getLocation()">📍 現在地を取得する</button>
+    </form>
+    """,
+    unsafe_allow_html=True
+)
+
+# URLのパラメータから現在地の情報を取得
+lat = st.experimental_get_query_params().get('lat', [None])[0]
+lon = st.experimental_get_query_params().get('lon', [None])[0]
+
+# 検索の実行
+if station_name or (lat and lon):
+    if station_name:
+        search_query = station_name if "駅" in station_name else station_name + "駅"
+        results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
+    elif lat and lon:
+        search_query = f"{lat}, {lon}"
+        results = geocoder.geocode(query=search_query, countrycode='JP', limit=1)
 
     if results:
-        filtered_results = filter_station_results(results, station_name)
-
-        if len(filtered_results) == 1:
-            st.success("1つの候補が見つかりました。")
-            best_result = filtered_results[0]
-        elif len(filtered_results) > 1:
+        if len(results) > 1:
             st.warning("候補が複数見つかりました。都道府県を入力してください。")
-            
-            # 都道府県の入力
             prefecture = st.text_input("都道府県を入力してください（例: 東京都）:")
 
             if prefecture:
-                refined_query = f"{station_name}駅, {prefecture}, 日本"
-                refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=5)
-                
+                refined_query = f"{station_name}駅, {prefecture}"
+                refined_results = geocoder.geocode(query=refined_query, countrycode='JP', limit=1)
+
                 if refined_results:
-                    filtered_results = filter_station_results(refined_results, station_name, prefecture)
-                    if len(filtered_results) == 1:
-                        best_result = filtered_results[0]
-                    else:
-                        st.error("指定された都道府県では1つの駅が特定できませんでした。")
-                        best_result = None
+                    results = refined_results
                 else:
-                    st.error("都道府県指定で検索しましたが、候補が見つかりませんでした。")
-                    best_result = None
+                    st.error("都道府県で再検索しましたが、候補が見つかりませんでした。")
+                    results = []
         else:
-            st.error("指定した駅が見つかりませんでした。")
-            best_result = None
-    else:
-        st.error("指定した駅が見つかりませんでした。")
-        best_result = None
+            st.success("1つの候補が見つかりました。")
+    
+    if len(results) == 1:
+        selected_result = results[0]
+        search_lat = selected_result['geometry']['lat']
+        search_lon = selected_result['geometry']['lng']
 
-    if best_result:
-        search_lat = best_result['geometry']['lat']
-        search_lon = best_result['geometry']['lng']
-
-        m = folium.Map(location=[search_lat, search_lon], zoom_start=15)
+        # 検索した駅を中心にする
+        m = folium.Map(location=[search_lat, search_lon], zoom_start=15)  # 駅を中心に設定
         folium.Marker(
             [search_lat, search_lon],
             popup=f"{station_name}駅",
             icon=folium.Icon(color="red", icon="info-sign")
         ).add_to(m)
 
-        # 加盟店のフィルタ
         加盟店_data["distance"] = 加盟店_data.apply(
             lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
         )
@@ -4353,17 +4368,20 @@ if station_name:
         if not nearby_stores.empty:
             for _, store in nearby_stores.iterrows():
                 popup_html = f"""
-                <strong>{store['name']}</strong><br>
-                距離: {store['distance']:.2f} km<br>
-                取り扱い銘柄： 
-                <span style="background-color: red; color: white; padding: 3px; border-radius: 3px;">
-                    {store['銘柄']}
-                </span><br>
-                <a href="{store['url']}" target="_blank">リンクはこちら</a>
+                <div style="width: 200px;">
+                    <strong>{store['name']}</strong><br>
+                    距離: {store['distance']:.2f} km<br>
+                    取り扱い銘柄： 
+                    <span style="background-color: red; color: white; padding: 3px; border-radius: 3px;">
+                        {store['銘柄']}
+                    </span><br>
+                    <a href="{store['url']}" target="_blank" style="color: blue;">リンクはこちら</a>
+                </div>
                 """
+                popup = folium.Popup(popup_html, max_width=200)
                 folium.Marker(
                     [store["lat"], store["lon"]],
-                    popup=folium.Popup(popup_html, max_width=200),
+                    popup=popup,
                     icon=folium.Icon(color="green")
                 ).add_to(m)
         else:
@@ -4373,4 +4391,5 @@ if station_name:
 else:
     m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
 
-st_folium(m, width="100%", height=500)
+# 地図の表示
+st_folium(m, width="100%", height=500)  # 幅を100%にしてスマホでも見やすく修正
