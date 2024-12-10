@@ -10,30 +10,23 @@ import pandas as pd
 st.markdown(
     """
     <style>
-        /* 🌟 全体の背景色を強制的に白にする */
         .main {
             background-color: #ffffff !important;
         }
         section[data-testid="stSidebar"] {
             background-color: #ffffff !important;
         }
-
-        /* 🌟 テキストの色を黒にする */
         .css-18e3th9, .stTextInput, .stButton button, .stMarkdown {
             color: #000000 !important;
         }
-
-        /* 🌟 サイドバーも白にする */
         section[data-testid="stSidebar"] {
             background-color: #ffffff !important;
         }
 
-        /* 🌟 ボタンの文字色を黒にする */
         .stButton button {
             color: #000000 !important;
         }
 
-        /* 🌟 ダークモードの影響を無視する */
         @media (prefers-color-scheme: dark) {
             .main {
                 background-color: #ffffff !important;
@@ -46,7 +39,6 @@ st.markdown(
             }
         }
 
-        /* 🌟 モバイルのメディアクエリを追加 */
         @media (max-width: 768px) {
             .main {
                 background-color: #ffffff !important;
