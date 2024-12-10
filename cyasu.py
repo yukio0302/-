@@ -5,57 +5,6 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
-# 🔥 カスタムCSSを追加して背景を白に、テキストを黒にする
-st.markdown(
-    """
-    <style>
-        html {
-            color-scheme: light !important;
-            -webkit-color-scheme: light !important;
-        }
-
-        body, .main, .stApp {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
-
-        .css-18e3th9, .stTextInput, .stButton button, .stMarkdown, .css-1n543e5 {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
-
-        section[data-testid="stSidebar"] {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
-
-        .stButton button {
-            color: #000000 !important;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            body, .main, .stApp, .css-18e3th9, .stTextInput, .stButton button, .stMarkdown {
-                background-color: #ffffff !important;
-                color: #000000 !important;
-            }
-        }
-
-        .brand-tag {
-            background-color: #f0f0f0;
-            color: #000000;
-            padding: 4px 8px;
-            margin: 2px 4px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            display: inline-block;
-        }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -87,7 +36,8 @@ if station_name:
         m = folium.Map(location=[search_lat, search_lon], zoom_start=15)
         folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
-           # 加盟店データ（850店分）を直接記述
+        # 📌 加盟店データ (サンプルデータ)
+        # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
         "（株）兼中　田中商店",
@@ -4354,14 +4304,17 @@ if station_name:
 ["西の関"],
 ["西の関"]
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
-   })
+})
 
+        # 📌 加盟店からの距離を計算
         加盟店_data["distance"] = 加盟店_data.apply(
-            lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
+            lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, 
+            axis=1
         )
 
         nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
+        # 取り扱い銘柄の一覧を作成
         all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
         all_brands.add("すべての銘柄")
         selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
@@ -4384,7 +4337,7 @@ if station_name:
                         取り扱い銘柄：
                     """
                     for brand in store['銘柄']:
-                        popup_html += f"<div class='brand-tag'>{brand}</div>"
+                        popup_html += f"<div style='background-color: red; color: white; padding: 4px 8px; display: inline-block; border-radius: 4px; margin: 2px 0;'>{brand}</div>"
                     popup_html += """
                     </div>
                     """
