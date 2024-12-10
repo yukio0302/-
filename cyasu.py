@@ -4391,5 +4391,8 @@ if station_name or (lat and lon):
 else:
     m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
 
+[theme]
+backgroundColor = "#F0F0F0"
+
 # 地図の表示
 st_folium(m, width="100%", height=500)  # 幅を100%にしてスマホでも見やすく修正
