@@ -1,67 +1,95 @@
 import streamlit as st
+
 import folium
+
 from streamlit_folium import st_folium
+
 from opencage.geocoder import OpenCageGeocode
+
 from geopy.distance import geodesic
+
 import pandas as pd
 
-# 🔥 カスタムCSSを追加して背景を白に、テキストを黒にする
+
+
+# 🔥 カスタムCSSを追加して背景を強制的に白にする
+
 st.markdown(
-    """
-    <style>
-        /* 色のスキームを常にライトモードに固定 */
-        html {
-            color-scheme: light !important;
-            -webkit-color-scheme: light !important;
-        }
 
-        /* 背景とテキストの強制設定 */
-        body, .main, .stApp {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
+    """
 
-        /* Streamlitの入力、ボタン、テキスト全般の色を白背景、黒テキストにする */
-        .css-18e3th9, .stTextInput, .stButton button, .stMarkdown, .css-1n543e5 {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
+    <style>
 
-        /* サイドバーの背景も白に */
-        section[data-testid="stSidebar"] {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
+        html {
 
-        /* ボタンのテキストカラーも黒に固定 */
-        .stButton button {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
+            color-scheme: light !important;
 
-        /* ダークモード時もライトモードに強制的に設定 */
-        @media (prefers-color-scheme: dark) {
-            body, .main, .stApp, .css-18e3th9, .stTextInput, .stButton button, .stMarkdown {
-                background-color: #ffffff !important;
-                color: #000000 !important;
-            }
-        }
+            -webkit-color-scheme: light !important;
 
-        /* 取り扱い銘柄タグのデザインを修正 */
-        .brand-tag {
-            background-color: #f0f0f0; /* 淡いグレー */
-            color: #000000 !important; /* テキストは黒 */
-            padding: 4px 8px; /* 内側の余白を広げて見やすくする */
-            margin: 2px 4px; /* 各銘柄の余白 */
-            border-radius: 4px; /* 角を少し丸くする */
-            font-size: 0.9em; /* 文字サイズを少し小さくする */
-            display: inline-block; /* タグを横並びにする */
-        }
+        }
 
-    </style>
-    """,
-    unsafe_allow_html=True
+
+
+        body, .main, .stApp {
+
+            background-color: #ffffff !important;
+
+            color: #000000 !important;
+
+        }
+
+
+
+        .css-18e3th9, .stTextInput, .stButton button, .stMarkdown, .css-1n543e5 {
+
+            background-color: #ffffff !important;
+
+            color: #000000 !important;
+
+        }
+
+
+
+        section[data-testid="stSidebar"] {
+
+            background-color: #ffffff !important;
+
+            color: #000000 !important;
+
+        }
+
+
+
+        .stButton button {
+
+            color: #000000 !important;
+
+        }
+
+
+
+        @media (prefers-color-scheme: dark) {
+
+            body, .main, .stApp, .css-18e3th9, .stTextInput, .stButton button, .stMarkdown {
+
+                background-color: #ffffff !important;
+
+                color: #000000 !important;
+
+            }
+
+        }
+
+    </style>
+
+    """,
+
+    unsafe_allow_html=True
+
 )
+
+
+
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
@@ -4332,53 +4360,147 @@ st.markdown(
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
 
+
 # OpenCage APIの設定
+
 api_key = "d63325663fe34549885cd31798e50eb2"
+
 geocoder = OpenCageGeocode(api_key)
+
+
 
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
 
+st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
+
+
+
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
+
+
 if station_name:
-    search_query = station_name if "駅" in station_name else station_name + "駅"
-    results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
-    if results:
-        selected_result = results[0]
-        search_lat = selected_result['geometry']['lat']
-        search_lon = selected_result['geometry']['lng']
+    search_query = station_name if "駅" in station_name else station_name + "駅"
 
-        m = folium.Map(location=[search_lat, search_lon], zoom_start=15)
-        folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+    results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
-        加盟店_data["distance"] = 加盟店_data.apply(
-            lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
-        )
-        nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-        for _, store in nearby_stores.iterrows():
-            # 🔥 マーカーのポップアップに「取り扱い銘柄タグ」を追加
-            popup_html = f"""
-            <div style="width: 200px;">
-                <strong>{store['name']}</strong><br>
-                距離: {store['distance']:.2f} km<br>
-                <a href="{store['url']}" target="_blank" style="color: blue;">リンクはこちら</a><br>
-                取り扱い銘柄：
-            """
-            for brand in store['銘柄']:
-                popup_html += f"<div class='brand-tag'>{brand}</div>"
-            popup_html += "</div>"
 
-            popup = folium.Popup(popup_html, max_width=250)
-            folium.Marker(
-                [store["lat"], store["lon"]],
-                popup=popup,
-                icon=folium.Icon(color="blue")
-            ).add_to(m)
-    else:
-        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
-else:
-    m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
+    if results:
 
-st_folium(m, width="100%", height=500)
+        selected_result = results[0]
+
+        search_lat = selected_result['geometry']['lat']
+
+        search_lon = selected_result['geometry']['lng']
+
+
+
+        m = folium.Map(location=[search_lat, search_lon], zoom_start=15)
+
+        folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+
+
+
+        加盟店_data["distance"] = 加盟店_data.apply(
+
+            lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
+
+        )
+
+        nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
+
+
+
+        # 取り扱い銘柄の一覧を作成
+
+        all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
+
+        all_brands.add("すべての銘柄")  # 全ての銘柄を追加
+
+        selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+
+
+
+        # 銘柄が選択された場合、該当店舗を表示
+
+        if selected_brand:
+
+            if selected_brand == "すべての銘柄":
+
+                filtered_stores = nearby_stores  # 全ての店舗を表示
+
+            else:
+
+                filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
+
+
+
+            if not filtered_stores.empty:
+
+                bounds = []
+
+
+
+                for _, store in filtered_stores.iterrows():
+
+                    popup_html = f"""
+
+                    <div style="width: 200px;">
+
+                        <strong>{store['name']}</strong><br>
+
+                        距離: {store['distance']:.2f} km<br>
+
+                        <a href="{store['url']}" target="_blank" style="color: blue;">リンクはこちら</a><br>
+
+                        取り扱い銘柄：
+
+                    """
+
+                    for brand in store['銘柄']:
+
+                        popup_html += f"<div style='background-color: red; color: white; display: inline-block; padding: 2px;'>{brand}</div>"
+
+                    popup_html += """
+
+                    </div>
+
+                    """
+
+                    popup = folium.Popup(popup_html, max_width=200)
+
+                    folium.Marker(
+
+                        [store["lat"], store["lon"]],
+
+                        popup=popup,
+
+                        icon=folium.Icon(color="blue")
+
+                    ).add_to(m)
+
+                    bounds.append((store["lat"], store["lon"]))
+
+
+
+                if bounds:
+
+                    m.fit_bounds(bounds)
+
+                else:
+
+                    st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
+
+            else:
+
+                m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
+
+        else:
+
+            m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
+
+
+
+    st_folium(m, width="100%", height=500)
