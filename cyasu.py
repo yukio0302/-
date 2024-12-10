@@ -5,7 +5,7 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
-# 🔥 カスタムCSSを追加して背景を強制的に白にする
+# 🔥 カスタムCSSを追加して背景を白に、テキストを黒にする
 st.markdown(
     """
     <style>
@@ -39,13 +39,55 @@ st.markdown(
                 color: #000000 !important;
             }
         }
+
+        .brand-tag {
+            background-color: #f0f0f0;
+            color: #000000;
+            padding: 4px 8px;
+            margin: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+
     </style>
     """,
     unsafe_allow_html=True
 )
 
 
-# 加盟店データ（850店分）を直接記述
+# OpenCage APIの設定
+api_key = "d63325663fe34549885cd31798e50eb2"
+geocoder = OpenCageGeocode(api_key)
+
+st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
+st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
+
+station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
+
+if station_name:
+    search_query = station_name if "駅" in station_name else station_name + "駅"
+    results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
+
+    if results and len(results) > 1:
+        prefectures = [result['components'].get('state', '不明な都道府県') for result in results]
+        prefecture_choice = st.selectbox("該当する都道府県を選択してください：", list(set(prefectures)))
+
+        selected_result = next(
+            (result for result in results if result['components'].get('state') == prefecture_choice), 
+            results[0]
+        )
+    else:
+        selected_result = results[0] if results else None
+
+    if selected_result:
+        search_lat = selected_result['geometry']['lat']
+        search_lon = selected_result['geometry']['lng']
+
+        m = folium.Map(location=[search_lat, search_lon], zoom_start=15)
+        folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+
+           # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
         "（株）兼中　田中商店",
@@ -4312,42 +4354,21 @@ st.markdown(
 ["西の関"],
 ["西の関"]
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
-})
-# OpenCage APIの設定
-api_key = "d63325663fe34549885cd31798e50eb2"
-geocoder = OpenCageGeocode(api_key)
-
-st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
-st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
-
-station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
-
-if station_name:
-    search_query = station_name if "駅" in station_name else station_name + "駅"
-    results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
-
-    if results:
-        selected_result = results[0]
-        search_lat = selected_result['geometry']['lat']
-        search_lon = selected_result['geometry']['lng']
-
-        m = folium.Map(location=[search_lat, search_lon], zoom_start=15)
-        folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+   })
 
         加盟店_data["distance"] = 加盟店_data.apply(
             lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
         )
+
         nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-        # 取り扱い銘柄の一覧を作成
         all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
-        all_brands.add("すべての銘柄")  # 全ての銘柄を追加
+        all_brands.add("すべての銘柄")
         selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
 
-        # 銘柄が選択された場合、該当店舗を表示
         if selected_brand:
             if selected_brand == "すべての銘柄":
-                filtered_stores = nearby_stores  # 全ての店舗を表示
+                filtered_stores = nearby_stores
             else:
                 filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
 
@@ -4363,11 +4384,11 @@ if station_name:
                         取り扱い銘柄：
                     """
                     for brand in store['銘柄']:
-                        popup_html += f"<div style='background-color: red; color: white; display: inline-block; padding: 2px;'>{brand}</div>"
+                        popup_html += f"<div class='brand-tag'>{brand}</div>"
                     popup_html += """
                     </div>
                     """
-                    popup = folium.Popup(popup_html, max_width=200)
+                    popup = folium.Popup(popup_html, max_width=250)
                     folium.Marker(
                         [store["lat"], store["lon"]],
                         popup=popup,
@@ -4383,5 +4404,7 @@ if station_name:
                 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
         else:
             m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
+    else:
+        st.write("該当する駅が見つかりませんでした。")
 
-    st_folium(m, width="100%", height=500)
+st_folium(m, width="100%", height=500)
