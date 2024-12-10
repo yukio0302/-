@@ -4312,7 +4312,6 @@ st.markdown(
 ["西の関"]
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
-
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4339,13 +4338,17 @@ if station_name:
         )
         nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-        # 🔥 取り扱い銘柄の一覧を作成
+        # 取り扱い銘柄の一覧を作成
         all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
+        all_brands.add("すべての銘柄")  # 全ての銘柄を追加
         selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
 
-        # 🔥 銘柄が選択された場合、該当店舗を表示
+        # 銘柄が選択された場合、該当店舗を表示
         if selected_brand:
-            filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
+            if selected_brand == "すべての銘柄":
+                filtered_stores = nearby_stores  # 全ての店舗を表示
+            else:
+                filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
 
             if not filtered_stores.empty:
                 bounds = []
@@ -4355,7 +4358,8 @@ if station_name:
                     <div style="width: 200px;">
                         <strong>{store['name']}</strong><br>
                         距離: {store['distance']:.2f} km<br>
-                        <a href="{store['url']}" target="_blank" style="color: blue;">リンクはこちら</a>
+                        <a href="{store['url']}" target="_blank" style="color: blue;">リンクはこちら</a><br>
+                        <div style="background-color: red; color: white;">取り扱い銘柄: {', '.join(store['銘柄'])}</div>
                     </div>
                     """
                     popup = folium.Popup(popup_html, max_width=200)
@@ -4368,11 +4372,11 @@ if station_name:
 
                 if bounds:
                     m.fit_bounds(bounds)
+                else:
+                    st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
             else:
-                st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
-    else:
-        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
-else:
-    m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
+                m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
+        else:
+            m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
 
-st_folium(m, width="100%", height=500)
+    st_folium(m, width="100%", height=500)
