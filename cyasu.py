@@ -44,6 +44,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
@@ -4359,7 +4360,11 @@ if station_name:
                         <strong>{store['name']}</strong><br>
                         距離: {store['distance']:.2f} km<br>
                         <a href="{store['url']}" target="_blank" style="color: blue;">リンクはこちら</a><br>
-                        <div style="background-color: red; color: white;">取り扱い銘柄: {', '.join(store['銘柄'])}</div>
+                        取り扱い銘柄：
+                    """
+                    for brand in store['銘柄']:
+                        popup_html += f"<div style='background-color: red; color: white; display: inline-block; padding: 2px;'>{brand}</div>"
+                    popup_html += """
                     </div>
                     """
                     popup = folium.Popup(popup_html, max_width=200)
