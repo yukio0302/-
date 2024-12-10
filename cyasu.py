@@ -6,6 +6,31 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
+# 🔥 カスタムCSSを追加して背景を強制的に白にする
+st.markdown(
+    """
+    <style>
+        /* 背景を白に設定 */
+        .main {
+            background-color: #ffffff !important;
+        }
+        /* サイドバーの背景を白に設定 */
+        section[data-testid="stSidebar"] {
+            background-color: #ffffff !important;
+        }
+        /* テキストの色を黒に */
+        .css-18e3th9 {
+            color: #000000 !important;
+        }
+        /* Streamlitのウィジェットやテキストの色も調整 */
+        .stButton button {
+            color: #000000 !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
