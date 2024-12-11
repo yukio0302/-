@@ -1,11 +1,9 @@
 import streamlit as st
-import pandas as pd
+import folium
+from streamlit_folium import st_folium
 from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
-
-# 📌 OpenCage APIの設定
-api_key = "d63325663fe34549885cd31798e50eb2"
-geocoder = OpenCageGeocode(api_key)
+import pandas as pd
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
@@ -4276,27 +4274,36 @@ geocoder = OpenCageGeocode(api_key)
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
 
-# 🌍 StreamlitのUI
-st.title("最寄りの加盟店検索アプリ")
+# OpenCage APIの設定
+api_key = "d63325663fe34549885cd31798e50eb2"  # APIキーを入力してください
+geocoder = OpenCageGeocode(api_key)
+
+st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
 st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
 
-station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
+station_name = st.text_input("最寄り駅名を入力してください（「駅」「停留所」は省略可能です）:")
+prefecture_input = st.text_input("都道府県を入力してください（必須）:")
 
-# デフォルトの地図位置
-default_lat, default_lon, default_zoom = 35.681236, 139.767125, 5
+# デフォルトの地図
+m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png", attr='OpenStreetMap')
 
-if station_name:
-    search_query = station_name if "駅" in station_name else station_name + "駅"
-    prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
-    if prefecture_input:
-        search_query = f"{prefecture_input} {search_query}"
+if station_name and prefecture_input:
+    # 「駅」や「停留所」を自動付加する
+    search_query = station_name
+    if not ("駅" in search_query or "停留所" in search_query):
+        search_query += "駅"
+    
+    search_query = f"{prefecture_input} {search_query}"
+    st.write(f"検索クエリ: {search_query}")
     
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
-    
+
     if results:
         if len(results) > 1:
             st.write("該当する駅が複数見つかりました。候補から選択してください。")
-            station_options = [f"{result['components'].get('state', '')} {result['formatted']}" for result in results]
+            station_options = [
+                f"{result['components'].get('state', '')} {result['formatted']}" for result in results
+            ]
             selected_station = st.selectbox("選択してください：", station_options)
             selected_result = results[station_options.index(selected_station)]
         else:
@@ -4304,69 +4311,50 @@ if station_name:
         
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
-        default_lat, default_lon, default_zoom = search_lat, search_lon, 15
+
+        m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png", attr='OpenStreetMap')
+        folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
         加盟店_data["distance"] = 加盟店_data.apply(
             lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
         )
         nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
+
+        all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
+        all_brands.add("すべての銘柄")
+        selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+
+        if selected_brand:
+            if selected_brand == "すべての銘柄":
+                filtered_stores = nearby_stores
+            else:
+                filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
+
+            if not filtered_stores.empty:
+                bounds = []
+                for _, store in filtered_stores.iterrows():
+                    brand_html = "".join(
+                        f'<span style="background-color: red; color: white; padding: 2px 4px; margin: 2px; display: inline-block;">{brand}</span>'
+                        for brand in store['銘柄']
+                    )
+                    popup_content = f"""
+                    <b>{store['name']}</b><br>
+                    <a href="{store['url']}" target="_blank">加盟店詳細はこちら</a><br>
+                    銘柄: {brand_html}<br>
+                    距離: {store['distance']:.2f} km
+                    """
+                    folium.Marker(
+                        [store['lat'], store['lon']],
+                        popup=folium.Popup(popup_content, max_width=300),
+                        icon=folium.Icon(color="blue")
+                    ).add_to(m)
+                    bounds.append((store['lat'], store['lon']))
+                
+                if bounds:
+                    m.fit_bounds(bounds)
+            else:
+                st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
     else:
         st.warning("該当する駅が見つかりませんでした。")
 
-# 🗺️ MapLibreのHTMLコード
-maplibre_html = f"""
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <title>MapLibre Example</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        #map {{ 
-            width: 100%; 
-            height: 500px; 
-            border-radius: 8px;
-        }}
-    </style>
-    <script src="https://unpkg.com/maplibre-gl/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl/dist/maplibre-gl.css" rel="stylesheet" />
-</head>
-<body>
-    <div id="map"></div>
-    <script>
-        var map = new maplibregl.Map({{
-            container: 'map', 
-            style: 'https://demotiles.maplibre.org/style.json', 
-            center: [{default_lon}, {default_lat}], 
-            zoom: {default_zoom} 
-        }});
-
-        // 駅のマーカー
-        new maplibregl.Marker({{ color: 'red' }})
-            .setLngLat([{default_lon}, {default_lat}])
-            .addTo(map);
-
-        // 加盟店のマーカーを追加
-        var storeData = {加盟店_data.to_json(orient="records")};
-        
-        storeData.forEach(function(store) {{
-            if (store.distance <= 10) {{
-                var popupContent = `
-                    <b>${{store.name}}</b><br>
-                    <a href="${{store.url}}" target="_blank">加盟店詳細はこちら</a><br>
-                    銘柄: ${store.銘柄.join(', ')}<br>
-                    距離: ${store.distance.toFixed(2)} km
-                `;
-                new maplibregl.Marker({{ color: 'blue' }})
-                    .setLngLat([store.lon, store.lat])
-                    .setPopup(new maplibregl.Popup().setHTML(popupContent))
-                    .addTo(map);
-            }}
-        }});
-    </script>
-</body>
-</html>
-"""
-
-# 🔥 StreamlitでHTMLを表示
-st.components.v1.html(maplibre_html, height=500)
+st_folium(m, width="100%", height=500)
