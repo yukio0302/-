@@ -4318,7 +4318,6 @@ st.markdown(
 ["西の関"]
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
-
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4336,7 +4335,15 @@ if station_name:
         if len(results) > 1:
             prefecture_input = st.text_input("複数の候補があります。該当する都道府県を入力してください。")
             if prefecture_input:
-                selected_result = next((result for result in results if prefecture_input in result['components'].get('state', '') or prefecture_input in result['components'].get('county', '')), None)
+                # 都道府県の一致条件を改良し、state や county の部分一致も考慮する
+                selected_result = next(
+                    (result for result in results 
+                     if prefecture_input in result['components'].get('state', '') 
+                     or prefecture_input in result['components'].get('county', '')
+                     or result['components'].get('state', '').startswith(prefecture_input) 
+                     or result['components'].get('county', '').startswith(prefecture_input)), 
+                    None
+                )
                 if selected_result is None:
                     st.warning("入力された都道府県に該当する駅が見つかりませんでした。最初の候補を表示します。")
                     selected_result = results[0]
@@ -4345,6 +4352,9 @@ if station_name:
         else:
             selected_result = results[0]
         
+        # 駅情報を表示（デバッグ用）
+        st.write("選択された駅情報:", selected_result['components'])
+
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
 
@@ -4379,7 +4389,5 @@ if station_name:
 
                 if bounds:
                     m.fit_bounds(bounds)
-            else:
-                st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
     
-    st_folium(m, width="100%", height=500)
+st_folium(m, width="100%", height=500)
