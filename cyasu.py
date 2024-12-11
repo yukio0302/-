@@ -4390,7 +4390,7 @@ elif search_method == "最寄り駅で検索":
 
         if results:
             if len(results) > 1:
-                st.write("類似駅名が複数見つかりました。候補から選択してください。")
+                st.write("類似駅名が複数見つかりました。都道府県を入力してください。")
                 station_options = [
                     f"{result['components'].get('state', '')} {result['formatted']}" for result in results
                 ]
