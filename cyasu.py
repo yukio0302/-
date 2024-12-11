@@ -4317,6 +4317,7 @@ st.markdown(
 ["西の関"]
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
+
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
