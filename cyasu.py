@@ -4380,7 +4380,7 @@ if station_name:
                     )
                     popup_content = f"""
                     <b>{store['name']}</b><br>
-                    URL: <a href="{store['url']}" target="_blank">{store['url']}</a><br>
+                    <a href="{store['url']}" target="_blank">加盟店詳細はこちら</a><br>
                     銘柄: {brand_html}<br>
                     距離: {store['distance']:.2f} km
                     """
