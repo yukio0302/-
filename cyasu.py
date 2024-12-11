@@ -4317,7 +4317,6 @@ st.markdown(
 ["西の関"]
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
-
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4332,24 +4331,20 @@ m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅を�
 
 if station_name:
     search_query = station_name if "駅" in station_name else station_name + "駅"
+    prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
+    if prefecture_input:
+        search_query = f"{prefecture_input} {search_query}"
+
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
     if results:
         if len(results) > 1:
-            prefecture_input = st.text_input("複数の候補があります。該当する都道府県を入力してください。")
-            if prefecture_input:
-                selected_result = next(
-                    (result for result in results 
-                    if prefecture_input in result['components'].get('state', '') 
-                    or prefecture_input in result['components'].get('county', '')
-                    or prefecture_input in result['components'].get('city', '')),
-                    None
-                )
-                if selected_result is None:
-                    st.warning("入力された都道府県に該当する駅が見つかりませんでした。最初の候補を表示します。")
-                    selected_result = results[0]
-            else:
-                selected_result = results[0]
+            st.write("該当する駅が複数見つかりました。候補から選択してください。")
+            station_options = [
+                f"{result['components'].get('state', '')} {result['formatted']}" for result in results
+            ]
+            selected_station = st.selectbox("選択してください：", station_options)
+            selected_result = results[station_options.index(selected_station)]
         else:
             selected_result = results[0]
         
@@ -4377,17 +4372,14 @@ if station_name:
             if not filtered_stores.empty:
                 bounds = []
                 for _, store in filtered_stores.iterrows():
-                    popup_html = f"""<div style='width: 200px;'><strong>{store['name']}</strong><br>距離: {store['distance']:.2f} km<br><a href="{store['url']}" target="_blank" style="color: blue;">リンクはこちら</a><br>取り扱い銘柄："""
-                    for brand in store['銘柄']:
-                        popup_html += f"<div style='background-color: red; color: white; display: inline-block; padding: 2px;'>{brand}</div>"
-                    popup_html += "</div>"
-                    popup = folium.Popup(popup_html, max_width=200)
-                    folium.Marker([store['lat'], store['lon']], popup=popup, icon=folium.Icon(color="blue")).add_to(m)
+                    folium.Marker([store['lat'], store['lon']], icon=folium.Icon(color="blue")).add_to(m)
                     bounds.append((store['lat'], store['lon']))
 
                 if bounds:
                     m.fit_bounds(bounds)
             else:
                 st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
-    
+    else:
+        st.warning("該当する駅が見つかりませんでした。")
+
 st_folium(m, width="100%", height=500)
