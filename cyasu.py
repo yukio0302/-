@@ -4324,8 +4324,8 @@ search_method = st.radio("検索方法を選択してください", ("住所で�
 # Default map
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
-if search_method == "住所で検索":
-    postal_code = st.text_input("郵便番号を入力してください（省略可能）:")
+if search_method == "住所で検索（郵便番号もしくは都道府県市区町村を入力してください）":
+    postal_code = st.text_input("郵便番号を入力してください（ハイフンなし、省略可能）:")
     address = st.text_input("都道府県市区町村を入力してください:")
 
     if postal_code or address:
