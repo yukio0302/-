@@ -4317,6 +4317,7 @@ st.markdown(
 ["西の関"]
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
+
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4372,11 +4373,15 @@ if station_name:
             if not filtered_stores.empty:
                 bounds = []
                 for _, store in filtered_stores.iterrows():
-                    # 加盟店の詳細情報をポップアップで表示
+                    # 加盟店の詳細情報をポップアップで表示 (銘柄は赤背景白文字)
+                    brand_html = "".join(
+                        f'<span style="background-color: red; color: white; padding: 2px 4px; margin: 2px; display: inline-block;">{brand}</span>'
+                        for brand in store['銘柄']
+                    )
                     popup_content = f"""
                     <b>{store['name']}</b><br>
                     URL: <a href="{store['url']}" target="_blank">{store['url']}</a><br>
-                    銘柄: {', '.join(store['銘柄'])}<br>
+                    銘柄: {brand_html}<br>
                     距離: {store['distance']:.2f} km
                     """
                     folium.Marker(
