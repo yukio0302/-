@@ -50,6 +50,7 @@ st.markdown(
 )
 
 # 加盟店データ（850店分）を直接記述
+# 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
         "（株）兼中　田中商店",
@@ -4333,8 +4334,11 @@ if station_name:
 
     if results:
         if len(results) > 1:
-            prefecture = st.selectbox("複数の候補があります。該当する都道府県を選択してください。", [result['components'].get('state', '不明な都道府県') for result in results])
-            selected_result = next(result for result in results if result['components'].get('state') == prefecture)
+            prefecture_input = st.text_input("複数の候補があります。該当する都道府県を入力してください。")
+            if prefecture_input:
+                selected_result = next((result for result in results if prefecture_input in result['components'].get('state', '')), results[0])
+            else:
+                selected_result = results[0]
         else:
             selected_result = results[0]
         
