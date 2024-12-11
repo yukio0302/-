@@ -38,6 +38,13 @@ st.markdown(
             color: #000000 !important;
         }
 
+        .銘柄 {
+            background-color: red;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
         @media (prefers-color-scheme: dark) {
             body, .main, .stApp, .css-18e3th9, .stTextInput, .stButton button, .stMarkdown {
                 background-color: #ffffff !important;
@@ -4353,9 +4360,9 @@ if search_by_address:
                     [closest_store['lat'], closest_store['lon']],
                     popup=f"""
                         <b>{closest_store['name']}</b><br>
-                        銘柄: {', '.join(closest_store['銘柄'])}<br>
+                        銘柄: {' '.join([f'<span class=\"銘柄\">{brand}</span>' for brand in closest_store['銘柄']])}<br>
                         距離: {closest_store['distance']:.2f} km<br>
-                        <a href="{closest_store['url']}" target="_blank">詳細はこちら</a>
+                        <a href=\"{closest_store['url']}\" target=\"_blank\">詳細はこちら</a>
                     """,
                     icon=folium.Icon(color="blue")
                 ).add_to(m)
@@ -4365,9 +4372,9 @@ if search_by_address:
                         [store['lat'], store['lon']],
                         popup=f"""
                             <b>{store['name']}</b><br>
-                            銘柄: {', '.join(store['銘柄'])}<br>
+                            銘柄: {' '.join([f'<span class=\"銘柄\">{brand}</span>' for brand in store['銘柄']])}<br>
                             距離: {store['distance']:.2f} km<br>
-                            <a href="{store['url']}" target="_blank">詳細はこちら</a>
+                            <a href=\"{store['url']}\" target=\"_blank\">詳細はこちら</a>
                         """,
                         icon=folium.Icon(color="blue")
                     ).add_to(m)
@@ -4415,9 +4422,9 @@ if search_by_station:
                         [store['lat'], store['lon']],
                         popup=f"""
                             <b>{store['name']}</b><br>
-                            銘柄: {', '.join(store['銘柄'])}<br>
+                            銘柄: {' '.join([f'<span class=\"銘柄\">{brand}</span>' for brand in store['銘柄']])}<br>
                             距離: {store['distance']:.2f} km<br>
-                            <a href="{store['url']}" target="_blank">詳細はこちら</a>
+                            <a href=\"{store['url']}\" target=\"_blank\">詳細はこちら</a>
                         """,
                         icon=folium.Icon(color="blue")
                     ).add_to(m)
