@@ -4351,14 +4351,14 @@ if search_by_address:
                 st.write("10km圏内ではありませんが、一番近くの加盟店を表示します！")
                 folium.Marker(
                     [closest_store['lat'], closest_store['lon']],
-                    popup=f"{closest_store['name']} (距離: {closest_store['distance']:.2f} km)",
+                    popup=f"{closest_store['name']} (距離: {closest_store['distance']:.2f} km)\n\n銘柄: {', '.join(closest_store['銘柄'])}\n\n[詳細はこちら]({closest_store['url']})",
                     icon=folium.Icon(color="blue")
                 ).add_to(m)
             else:
                 for _, store in nearby_stores.iterrows():
                     folium.Marker(
                         [store['lat'], store['lon']],
-                        popup=f"{store['name']} (距離: {store['distance']:.2f} km)",
+                        popup=f"{store['name']} (距離: {store['distance']:.2f} km)\n\n銘柄: {', '.join(store['銘柄'])}\n\n[詳細はこちら]({store['url']})",
                         icon=folium.Icon(color="blue")
                     ).add_to(m)
 
@@ -4403,7 +4403,7 @@ if search_by_station:
                 for _, store in nearby_stores.iterrows():
                     folium.Marker(
                         [store['lat'], store['lon']],
-                        popup=f"{store['name']} (距離: {store['distance']:.2f} km)",
+                        popup=f"{store['name']} (距離: {store['distance']:.2f} km)\n\n銘柄: {', '.join(store['銘柄'])}\n\n[詳細はこちら]({store['url']})",
                         icon=folium.Icon(color="blue")
                     ).add_to(m)
         else:
