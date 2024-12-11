@@ -4327,6 +4327,9 @@ st.write("最寄り駅を入力して、10km圏内の加盟店を検索します
 
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
+# デフォルトの地図（駅が見つからなかった場合にも表示する）
+m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)  # 東京駅をデフォルトの位置に
+
 if station_name:
     search_query = station_name if "駅" in station_name else station_name + "駅"
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
@@ -4335,18 +4338,20 @@ if station_name:
         if len(results) > 1:
             prefecture_input = st.text_input("複数の候補があります。該当する都道府県を入力してください。")
             if prefecture_input:
-                selected_result = next((result for result in results if prefecture_input in result['components'].get('state', '') or prefecture_input in result['components'].get('county', '')), None)
+                selected_result = next(
+                    (result for result in results 
+                    if prefecture_input in result['components'].get('state', '') 
+                    or prefecture_input in result['components'].get('county', '')
+                    or prefecture_input in result['components'].get('city', '')),
+                    None
+                )
                 if selected_result is None:
                     st.warning("入力された都道府県に該当する駅が見つかりませんでした。最初の候補を表示します。")
                     selected_result = results[0]
             else:
-                st.info("複数の駅が見つかりましたが、都道府県が指定されていません。最初の候補を表示します。")
                 selected_result = results[0]
         else:
             selected_result = results[0]
-        
-        # 駅の詳細情報を表示
-        st.write("### 駅の情報", selected_result['components'])
         
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
