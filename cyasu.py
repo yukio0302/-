@@ -50,7 +50,6 @@ st.markdown(
 )
 
 # 加盟店データ（850店分）を直接記述
-# 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
         "（株）兼中　田中商店",
@@ -4341,9 +4340,13 @@ if station_name:
                     st.warning("入力された都道府県に該当する駅が見つかりませんでした。最初の候補を表示します。")
                     selected_result = results[0]
             else:
+                st.info("複数の駅が見つかりましたが、都道府県が指定されていません。最初の候補を表示します。")
                 selected_result = results[0]
         else:
             selected_result = results[0]
+        
+        # 駅の詳細情報を表示
+        st.write("### 駅の情報", selected_result['components'])
         
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
@@ -4382,4 +4385,4 @@ if station_name:
             else:
                 st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
     
-    st_folium(m, width="100%", height=500)
+st_folium(m, width="100%", height=500)
