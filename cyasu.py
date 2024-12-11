@@ -5,7 +5,7 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
-# 🔥 カスタムCSSを追加して背景を強制的に白にする
+# 🔥 カスタムCSSを追加して背景を白に固定
 st.markdown(
     """
     <style>
@@ -4369,15 +4369,29 @@ if station_name:
                 filtered_stores = nearby_stores
             else:
                 filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
+            
+            # デバッグ用：フィルタリング結果を表示
+            st.write("フィルタリングされた加盟店:", filtered_stores)
 
             if not filtered_stores.empty:
                 bounds = []
                 for _, store in filtered_stores.iterrows():
-                    folium.Marker([store['lat'], store['lon']], icon=folium.Icon(color="blue")).add_to(m)
+                    # 加盟店の詳細情報をポップアップで表示
+                    popup_content = f"""
+                    <b>{store['name']}</b><br>
+                    URL: <a href="{store['url']}" target="_blank">{store['url']}</a><br>
+                    銘柄: {', '.join(store['銘柄'])}<br>
+                    距離: {store['distance']:.2f} km
+                    """
+                    folium.Marker(
+                        [store['lat'], store['lon']],
+                        popup=folium.Popup(popup_content, max_width=300),
+                        icon=folium.Icon(color="blue")
+                    ).add_to(m)
                     bounds.append((store['lat'], store['lon']))
-
+                
                 if bounds:
-                    m.fit_bounds(bounds)
+                    m.fit_bounds(bounds)  # 地図の範囲を調整
             else:
                 st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
     else:
