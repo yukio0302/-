@@ -33,6 +33,11 @@ st.markdown(
             color: #000000 !important;
         }
 
+        input[type="text"] {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
         @media (prefers-color-scheme: dark) {
             body, .main, .stApp, .css-18e3th9, .stTextInput, .stButton button, .stMarkdown {
                 background-color: #ffffff !important;
@@ -44,8 +49,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
-# 加盟店データ（850店分）を直接記述
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
@@ -4329,7 +4332,12 @@ if station_name:
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
     if results:
-        selected_result = results[0]
+        if len(results) > 1:
+            prefecture = st.selectbox("複数の候補があります。該当する都道府県を選択してください。", [result['components'].get('state', '不明な都道府県') for result in results])
+            selected_result = next(result for result in results if result['components'].get('state') == prefecture)
+        else:
+            selected_result = results[0]
+        
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
 
@@ -4341,49 +4349,30 @@ if station_name:
         )
         nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-        # 取り扱い銘柄の一覧を作成
         all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
-        all_brands.add("すべての銘柄")  # 全ての銘柄を追加
+        all_brands.add("すべての銘柄")
         selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
 
-        # 銘柄が選択された場合、該当店舗を表示
         if selected_brand:
             if selected_brand == "すべての銘柄":
-                filtered_stores = nearby_stores  # 全ての店舗を表示
+                filtered_stores = nearby_stores
             else:
                 filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
 
             if not filtered_stores.empty:
                 bounds = []
-
                 for _, store in filtered_stores.iterrows():
-                    popup_html = f"""
-                    <div style="width: 200px;">
-                        <strong>{store['name']}</strong><br>
-                        距離: {store['distance']:.2f} km<br>
-                        <a href="{store['url']}" target="_blank" style="color: blue;">リンクはこちら</a><br>
-                        取り扱い銘柄：
-                    """
+                    popup_html = f"""<div style='width: 200px;'><strong>{store['name']}</strong><br>距離: {store['distance']:.2f} km<br><a href="{store['url']}" target="_blank" style="color: blue;">リンクはこちら</a><br>取り扱い銘柄："""
                     for brand in store['銘柄']:
                         popup_html += f"<div style='background-color: red; color: white; display: inline-block; padding: 2px;'>{brand}</div>"
-                    popup_html += """
-                    </div>
-                    """
+                    popup_html += "</div>"
                     popup = folium.Popup(popup_html, max_width=200)
-                    folium.Marker(
-                        [store["lat"], store["lon"]],
-                        popup=popup,
-                        icon=folium.Icon(color="blue")
-                    ).add_to(m)
-                    bounds.append((store["lat"], store["lon"]))
+                    folium.Marker([store['lat'], store['lon']], popup=popup, icon=folium.Icon(color="blue")).add_to(m)
+                    bounds.append((store['lat'], store['lon']))
 
                 if bounds:
                     m.fit_bounds(bounds)
-                else:
-                    st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
             else:
-                m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
-        else:
-            m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
-
+                st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
+    
     st_folium(m, width="100%", height=500)
