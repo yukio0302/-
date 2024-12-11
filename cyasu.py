@@ -44,12 +44,6 @@ st.markdown(
                 color: #000000 !important;
             }
         }
-
-        .stTextInput {
-            display: inline-block;
-            width: 48%;
-            margin-right: 2%;
-        }
     </style>
     """,
     unsafe_allow_html=True
@@ -4331,11 +4325,8 @@ geocoder = OpenCageGeocode(api_key)
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
 st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
 
-col1, col2 = st.columns(2)
-with col1:
-    prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
-with col2:
-    station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
+prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
+station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
