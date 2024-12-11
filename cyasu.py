@@ -4328,7 +4328,7 @@ st.write("最寄り駅を入力して、10km圏内の加盟店を検索します
 station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
 # デフォルトの地図
-m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="CartoDB Positron")  # CartoDB Positronを使用
+m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="Stamen Toner")  # Stamen Tonerを使用
 
 if station_name:
     search_query = station_name if "駅" in station_name else station_name + "駅"
@@ -4352,7 +4352,7 @@ if station_name:
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
 
-        m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="CartoDB Positron")
+        m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="Stamen Toner")
         folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
         加盟店_data["distance"] = 加盟店_data.apply(
