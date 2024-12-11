@@ -5,7 +5,7 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
-# ⚡️ カスタムCSSを追加して背景を白に固定
+# Custom CSS for white background
 st.markdown(
     """
     <style>
@@ -36,13 +36,6 @@ st.markdown(
         input[type="text"] {
             background-color: #ffffff !important;
             color: #000000 !important;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            body, .main, .stApp, .css-18e3th9, .stTextInput, .stButton button, .stMarkdown {
-                background-color: #ffffff !important;
-                color: #000000 !important;
-            }
         }
     </style>
     """,
@@ -4318,69 +4311,64 @@ st.markdown(
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
 
-# OpenCage APIの設定
+# OpenCage API settings
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
 
-st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
-st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
+st.title("最寄りの加盟店検索アプリ")
+st.write("検索方法を選択し、10km圏内の加盟店を検索します。")
 
-prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
-station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
+# Search method selection
+search_method = st.radio("検索方法を選択してください", ("住所で検索", "最寄り駅で検索"))
 
-# デフォルトの地図
+# Default map
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
-if station_name:
-    search_query = station_name if "駅" in station_name else station_name + "駅"
-    if prefecture_input:
-        search_query = f"{prefecture_input} {search_query}"
+if search_method == "住所で検索":
+    postal_code = st.text_input("郵便番号を入力してください（省略可能）:")
+    address = st.text_input("都道府県市区町村を入力してください:")
 
-    results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
+    if postal_code or address:
+        search_query = postal_code if postal_code else address
+        results = geocoder.geocode(query=search_query, countrycode='JP', limit=1)
 
-    if results:
-        if len(results) > 1:
-            st.write("該当する駅が複数見つかりました。候補から選択してください。")
-            station_options = [
-                f"{result['components'].get('state', '')} {result['formatted']}" for result in results
-            ]
-            selected_station = st.selectbox("選択してください：", station_options)
-            selected_result = results[station_options.index(selected_station)]
-        else:
-            selected_result = results[0]
-        
-        search_lat = selected_result['geometry']['lat']
-        search_lon = selected_result['geometry']['lng']
+        if results:
+            search_lat = results[0]['geometry']['lat']
+            search_lon = results[0]['geometry']['lng']
 
-        m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
-        folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+            m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+            folium.Marker([search_lat, search_lon], popup="検索地点", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
-        加盟店_data["distance"] = 加盟店_data.apply(
-            lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
-        )
-        nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
+            加盟店_data["distance"] = 加盟店_data.apply(
+                lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
+            )
+            nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-        all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
-        all_brands.add("すべての銘柄")
-        selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+            if nearby_stores.empty:
+                st.warning("半径10km圏内に加盟店は見つかりませんでした。一番近い加盟店を探します。")
+                加盟店_data["distance"] = 加盟店_data.apply(
+                    lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
+                )
+                closest_store = 加盟店_data.loc[加盟店_data["distance"].idxmin()]
 
-        if selected_brand:
-            if selected_brand == "すべての銘柄":
-                filtered_stores = nearby_stores
+                popup_content = f"""
+                <b>{closest_store['name']}</b><br>
+                <a href="{closest_store['url']}" target="_blank">加盟店詳細はこちら</a><br>
+                銘柄: {', '.join(closest_store['銘柄'])}<br>
+                距離: {closest_store['distance']:.2f} km
+                """
+                folium.Marker(
+                    [closest_store['lat'], closest_store['lon']],
+                    popup=folium.Popup(popup_content, max_width=300),
+                    icon=folium.Icon(color="blue")
+                ).add_to(m)
+                st.write("半径10km圏内にはありませんでしたが、こちらが一番近い加盟店です。")
             else:
-                filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
-
-            if not filtered_stores.empty:
-                bounds = []
-                for _, store in filtered_stores.iterrows():
-                    brand_html = "".join(
-                        f'<span style="background-color: red; color: white; padding: 2px 4px; margin: 2px; display: inline-block;">{brand}</span>'
-                        for brand in store['銘柄']
-                    )
+                for _, store in nearby_stores.iterrows():
                     popup_content = f"""
                     <b>{store['name']}</b><br>
                     <a href="{store['url']}" target="_blank">加盟店詳細はこちら</a><br>
-                    銘柄: {brand_html}<br>
+                    銘柄: {', '.join(store['銘柄'])}<br>
                     距離: {store['distance']:.2f} km
                     """
                     folium.Marker(
@@ -4388,13 +4376,54 @@ if station_name:
                         popup=folium.Popup(popup_content, max_width=300),
                         icon=folium.Icon(color="blue")
                     ).add_to(m)
-                    bounds.append((store['lat'], store['lon']))
-                
-                if bounds:
-                    m.fit_bounds(bounds)
+
+elif search_method == "最寄り駅で検索":
+    station_name = st.text_input("駅名を入力してください（「駅」は省略可能）:")
+    prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
+
+    if station_name:
+        search_query = station_name if "駅" in station_name else station_name + "駅"
+        if prefecture_input:
+            search_query = f"{prefecture_input} {search_query}"
+
+        results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
+
+        if results:
+            if len(results) > 1:
+                st.write("類似駅名が複数見つかりました。候補から選択してください。")
+                station_options = [
+                    f"{result['components'].get('state', '')} {result['formatted']}" for result in results
+                ]
+                selected_station = st.selectbox("選択してください：", station_options)
+                selected_result = results[station_options.index(selected_station)]
             else:
-                st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
-    else:
-        st.warning("該当する駅が見つかりませんでした。")
+                selected_result = results[0]
+
+            search_lat = selected_result['geometry']['lat']
+            search_lon = selected_result['geometry']['lng']
+
+            m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+            folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+
+            加盟店_data["distance"] = 加盟店_data.apply(
+                lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
+            )
+            nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
+
+            if nearby_stores.empty:
+                st.warning("半径10km圏内に加盟店は見つかりませんでした。住所入力で再検索してください。")
+            else:
+                for _, store in nearby_stores.iterrows():
+                    popup_content = f"""
+                    <b>{store['name']}</b><br>
+                    <a href="{store['url']}" target="_blank">加盟店詳細はこちら</a><br>
+                    銘柄: {', '.join(store['銘柄'])}<br>
+                    距離: {store['distance']:.2f} km
+                    """
+                    folium.Marker(
+                        [store['lat'], store['lon']],
+                        popup=folium.Popup(popup_content, max_width=300),
+                        icon=folium.Icon(color="blue")
+                    ).add_to(m)
 
 st_folium(m, width="100%", height=500)
