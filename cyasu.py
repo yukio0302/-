@@ -4324,7 +4324,7 @@ search_method = st.radio("検索方法を選択してください", ("住所で�
 # Default map
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
-if search_method == "住所で検索":
+if search_method == "住所で検索（郵便番号もしくは都道府県市区町村を入力してください）":
     postal_code = st.text_input("郵便番号を入力してください（ハイフンなし、省略可能）:")
     address = st.text_input("都道府県市区町村を入力してください:")
 
@@ -4346,6 +4346,9 @@ if search_method == "住所で検索":
 
             if nearby_stores.empty:
                 st.warning("半径10km圏内に加盟店は見つかりませんでした。一番近い加盟店を探します。")
+                加盟店_data["distance"] = 加盟店_data.apply(
+                    lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
+                )
                 closest_store = 加盟店_data.loc[加盟店_data["distance"].idxmin()]
 
                 popup_content = f"""
@@ -4361,12 +4364,6 @@ if search_method == "住所で検索":
                 ).add_to(m)
                 st.write("半径10km圏内にはありませんでしたが、こちらが一番近い加盟店です。")
             else:
-                bounds = [
-                    [nearby_stores['lat'].min(), nearby_stores['lon'].min()],
-                    [nearby_stores['lat'].max(), nearby_stores['lon'].max()]
-                ]
-                m.fit_bounds(bounds)
-
                 for _, store in nearby_stores.iterrows():
                     popup_content = f"""
                     <b>{store['name']}</b><br>
@@ -4416,12 +4413,6 @@ elif search_method == "最寄り駅で検索":
             if nearby_stores.empty:
                 st.warning("半径10km圏内に加盟店は見つかりませんでした。住所入力で再検索してください。")
             else:
-                bounds = [
-                    [nearby_stores['lat'].min(), nearby_stores['lon'].min()],
-                    [nearby_stores['lat'].max(), nearby_stores['lon'].max()]
-                ]
-                m.fit_bounds(bounds)
-
                 for _, store in nearby_stores.iterrows():
                     popup_content = f"""
                     <b>{store['name']}</b><br>
