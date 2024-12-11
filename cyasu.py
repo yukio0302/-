@@ -5,6 +5,56 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
+# ⚡️ カスタムCSSを追加して背景を白に固定
+st.markdown(
+    """
+    <style>
+        html {
+            color-scheme: light !important;
+            -webkit-color-scheme: light !important;
+        }
+
+        body, .main, .stApp {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .css-18e3th9, .stTextInput, .stButton button, .stMarkdown, .css-1n543e5 {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        section[data-testid="stSidebar"] {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .stButton button {
+            color: #000000 !important;
+        }
+
+        input[type="text"] {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body, .main, .stApp, .css-18e3th9, .stTextInput, .stButton button, .stMarkdown {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+        }
+
+        .stTextInput {
+            display: inline-block;
+            width: 48%;
+            margin-right: 2%;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
@@ -4275,27 +4325,26 @@ import pandas as pd
 })
 
 # OpenCage APIの設定
-api_key = "d63325663fe34549885cd31798e50eb2"  # APIキーを入力してください
+api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
 
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
 st.write("最寄り駅を入力して、10km圏内の加盟店を検索します。")
 
-station_name = st.text_input("最寄り駅名を入力してください（「駅」「停留所」は省略可能です）:")
-prefecture_input = st.text_input("都道府県を入力してください（必須）:")
+col1, col2 = st.columns(2)
+with col1:
+    prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
+with col2:
+    station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
 # デフォルトの地図
-m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png", attr='OpenStreetMap')
+m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
-if station_name and prefecture_input:
-    # 「駅」や「停留所」を自動付加する
-    search_query = station_name
-    if not ("駅" in search_query or "停留所" in search_query):
-        search_query += "駅"
-    
-    search_query = f"{prefecture_input} {search_query}"
-    st.write(f"検索クエリ: {search_query}")
-    
+if station_name:
+    search_query = station_name if "駅" in station_name else station_name + "駅"
+    if prefecture_input:
+        search_query = f"{prefecture_input} {search_query}"
+
     results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
     if results:
@@ -4312,7 +4361,7 @@ if station_name and prefecture_input:
         search_lat = selected_result['geometry']['lat']
         search_lon = selected_result['geometry']['lng']
 
-        m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png", attr='OpenStreetMap')
+        m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
         folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
         加盟店_data["distance"] = 加盟店_data.apply(
