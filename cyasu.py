@@ -4317,6 +4317,7 @@ st.markdown(
 ["西の関"]
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
+
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -4337,6 +4338,8 @@ if search_by_address:
         if results:
             search_lat = results[0]['geometry']['lat']
             search_lon = results[0]['geometry']['lng']
+
+            m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
             加盟店_data["distance"] = 加盟店_data.apply(
                 lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
@@ -4360,7 +4363,7 @@ if search_by_address:
                     ).add_to(m)
 
         else:
-            st.warning("該当する住所が見つかりませんでした。")
+            st.warning("該当する住所が見つかりませんでした。入力内容を確認してください。")
 
 if search_by_station:
     prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
