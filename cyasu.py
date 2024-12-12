@@ -10,9 +10,8 @@ st.set_page_config(
     page_title="最寄りの『立春朝搾り』販売店検索アプリ",
     page_icon="🍶",
     layout="centered",
-    initial_sidebar_state="auto",
-    theme="light"  # ライトモードを強制
-
+    initial_sidebar_state="auto"
+)  # 括弧を閉じる
 # ⚡️ カスタムCSSを追加して背景を白に固定
 st.markdown(
     """
