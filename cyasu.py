@@ -41,6 +41,9 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+api_key = "d63325663fe34549885cd31798e50eb2"
+geocoder = OpenCageGeocode(api_key)
+
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
@@ -4311,8 +4314,7 @@ st.markdown(
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
 
-api_key = "d63325663fe34549885cd31798e50eb2"
-geocoder = OpenCageGeocode(api_key)
+
 
 st.title("最寄りの加盟店検索アプリ")
 st.write("検索方法を選択し、10km圏内の加盟店を検索します。")
