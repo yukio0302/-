@@ -31,8 +31,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ここに加盟店情報
-
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
     "name": [
@@ -4302,7 +4300,6 @@ st.markdown(
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
 
-# ここに加盟店情報
 
 # OpenCage API settings
 api_key = "d63325663fe34549885cd31798e50eb2"
@@ -4310,6 +4307,9 @@ geocoder = OpenCageGeocode(api_key)
 
 st.title("最寄りの加盟店検索アプリ")
 st.write("検索方法を選択し、10km圏内の加盟店を検索します。")
+
+# 初期の地図オブジェクトを作成
+m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
 # Search method selection
 search_method = st.radio("検索方法を選択してください", ("住所で検索", "最寄り駅で検索"))
@@ -4323,7 +4323,7 @@ if search_method == "住所で検索":
 all_brands = sorted(set(brand for brands in 加盟店_data["銘柄"] for brand in brands))
 
 # Placeholder for selectable brands
-selected_brands = []
+selected_brands = all_brands
 
 if postal_code or address:
     search_query = postal_code if postal_code else address
@@ -4342,27 +4342,12 @@ if postal_code or address:
         nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
         # Filter brands for the selected area
-        available_brands = sorted(set(brand for brands in nearby_stores["銘柄"] for brand in brands))
-        selected_brands = st.multiselect(
-            "表示する取り扱い銘柄を選択してください:", options=available_brands, default=available_brands
-        )
+        if not nearby_stores.empty:
+            available_brands = sorted(set(brand for brands in nearby_stores["銘柄"] for brand in brands))
+            selected_brands = st.multiselect(
+                "表示する取り扱い銘柄を選択してください:", options=available_brands, default=available_brands
+            )
 
-        if nearby_stores.empty:
-            st.warning("半径10km圏内に加盟店は見つかりませんでした。一番近い加盟店を探します。")
-            closest_store = 加盟店_data.loc[加盟店_data["distance"].idxmin()]
-
-            popup_content = f"""
-            <b>{closest_store['name']}</b><br>
-            <a href="{closest_store['url']}" target="_blank">加盟店詳細はこちら</a><br>
-            銘柄: {', '.join([f'<span class=\"銘柄\">{brand}</span>' for brand in closest_store['銘柄']])}<br>
-            距離: {closest_store['distance']:.2f} km
-            """
-            folium.Marker(
-                [closest_store['lat'], closest_store['lon']],
-                popup=folium.Popup(popup_content, max_width=300),
-                icon=folium.Icon(color="blue")
-            ).add_to(m)
-        else:
             for _, store in nearby_stores.iterrows():
                 if any(brand in selected_brands for brand in store['銘柄']):
                     popup_content = f"""
@@ -4377,4 +4362,5 @@ if postal_code or address:
                         icon=folium.Icon(color="blue")
                     ).add_to(m)
 
+# 地図を表示
 st_folium(m, width="100%", height=500)
