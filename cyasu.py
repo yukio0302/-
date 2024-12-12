@@ -61,6 +61,52 @@ st.markdown("""
         button:hover {
             background-color: #0056b3 !important; /* ホバー時の背景: 濃い青 */
         }
+
+/* カスタムボタンのスタイル */
+[data-baseweb="radio"] > div {
+    display: flex;
+    justify-content: center; /* 中央揃え */
+    gap: 10px; /* ボタン間の間隔 */
+    margin: 20px 0; /* 上下の余白 */
+}
+
+[data-baseweb="radio"] > div > label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border-radius: 30px; /* ボタンを丸く */
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase; /* 大文字化 */
+    transition: all 0.3s ease-in-out;
+    border: 2px solid transparent; /* 初期の境界線なし */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影 */
+}
+
+[data-baseweb="radio"] > div > label:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* ホバー時の影 */
+}
+
+[data-baseweb="radio"] > div > label[data-selected="true"] {
+    background: linear-gradient(90deg, #4facfe, #00f2fe); /* グラデーション背景 */
+    color: white;
+    border: 2px solid #00f2fe;
+}
+
+[data-baseweb="radio"] > div > label[data-selected="false"] {
+    background: #f2f2f2; /* 非選択時の背景 */
+    color: #a6a6a6; /* 非選択時の文字色 */
+    border: 2px solid #cccccc;
+}
+
+[data-baseweb="radio"] > div > label[data-selected="false"]:hover {
+    background: #e6e6e6; /* ホバー時の非選択背景 */
+    color: #808080; /* ホバー時の文字色 */
+}
+
+        
     </style>
     """, unsafe_allow_html=True)
 
