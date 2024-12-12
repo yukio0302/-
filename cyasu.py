@@ -5,7 +5,6 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
-
 # ⚡️ カスタムCSSを追加して背景を白に固定
 st.markdown(
     """
@@ -4321,30 +4320,47 @@ api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
 
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
-st.write("住所または最寄り駅を入力して、10km圏内の加盟店を検索します。")
+st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
 
 # 検索モード選択
 search_mode = st.radio("検索方法を選択してください：", ("住所で検索", "最寄り駅で検索"))
 
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
-
 if search_mode == "住所で検索":
-    address_input = st.text_input("住所（番地・号を除く）を入力してください：")
-    if address_input:
-        results = geocoder.geocode(query=address_input, countrycode='JP', limit=1)
+    st.write("郵便番号もしくは住所を入力してください。")
+    postal_code_input = st.text_input("郵便番号を入力してください（例: 123-4567）:")
+    address_input = st.text_input("住所（番地・号を除く）を入力してください:")
+
+    # 検索処理
+    if postal_code_input or address_input:
+        if postal_code_input:
+            # 郵便番号で検索
+            query = postal_code_input
+        else:
+            # 住所で検索
+            query = address_input
+
+        results = geocoder.geocode(query=query, countrycode='JP', limit=1)
+
         if results:
+            # 検索地点の座標を取得
             search_lat = results[0]['geometry']['lat']
             search_lon = results[0]['geometry']['lng']
 
+            # 地図の初期化
             m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
             folium.Marker([search_lat, search_lon], popup=f"検索地点", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
+            # 加盟店データとの距離計算
             加盟店_data["distance"] = 加盟店_data.apply(
                 lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
             )
+
+            # 10km以内の加盟店をフィルタリング
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
+            # 検索エリアの取り扱い銘柄一覧を表示
             all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
             all_brands.add("すべての銘柄")
             selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
@@ -4374,23 +4390,24 @@ if search_mode == "住所で検索":
                             icon=folium.Icon(color="blue")
                         ).add_to(m)
                         bounds.append((store['lat'], store['lon']))
-                    
+
                     if bounds:
                         m.fit_bounds(bounds)
                 else:
                     st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
         else:
-            st.warning("該当する住所が見つかりませんでした。")
-
+            st.warning("該当する住所または郵便番号が見つかりませんでした。")
 elif search_mode == "最寄り駅で検索":
     prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
     station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
     if station_name:
+        # 駅名の形式を確認
         search_query = station_name if "駅" in station_name else station_name + "駅"
         if prefecture_input:
             search_query = f"{prefecture_input} {search_query}"
 
+        # 駅名で検索
         results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
 
         if results:
@@ -4407,14 +4424,17 @@ elif search_mode == "最寄り駅で検索":
             search_lat = selected_result['geometry']['lat']
             search_lon = selected_result['geometry']['lng']
 
+            # 地図の初期化
             m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
             folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
+            # 加盟店データとの距離計算
             加盟店_data["distance"] = 加盟店_data.apply(
                 lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
             )
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
+            # 検索エリアの取り扱い銘柄一覧を表示
             all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
             all_brands.add("すべての銘柄")
             selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
@@ -4444,7 +4464,7 @@ elif search_mode == "最寄り駅で検索":
                             icon=folium.Icon(color="blue")
                         ).add_to(m)
                         bounds.append((store['lat'], store['lon']))
-                    
+
                     if bounds:
                         m.fit_bounds(bounds)
                 else:
@@ -4452,4 +4472,6 @@ elif search_mode == "最寄り駅で検索":
         else:
             st.warning("該当する駅が見つかりませんでした。")
 
+# 地図のレンダリング
 st_folium(m, width=700, height=500)
+
