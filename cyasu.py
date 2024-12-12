@@ -4332,7 +4332,7 @@ search_mode = st.radio("検索方法を選択してください：", ("住所で
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
 if search_mode == "住所で検索":
-    address_input = st.text_input("住所を入力してください：")
+    address_input = st.text_input("住所（番地・号を除く）を入力してください：")
     if address_input:
         results = geocoder.geocode(query=address_input, countrycode='JP', limit=1)
         if results:
@@ -4397,7 +4397,7 @@ elif search_mode == "最寄り駅で検索":
 
         if results:
             if len(results) > 1:
-                st.write("該当する駅が複数見つかりました。候補から選択してください。")
+                st.write("該当する駅が複数見つかりました。都道府県の入力もしくは候補から選択してください。")
                 station_options = [
                     f"{result['components'].get('state', '')} {result['formatted']}" for result in results
                 ]
