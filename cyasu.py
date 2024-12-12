@@ -7,65 +7,51 @@ import pandas as pd
 
 import streamlit as st
 
-# 強制的にライトモードを適用するCSS
+# カスタムCSSを適用
 st.markdown("""
     <style>
+        /* 背景色を白、テキスト色を黒に設定 */
         body {
-            background-color: #ffffff !important;  /* 背景を白に */
-            color: #000000 !important;            /* テキストを黒に */
+            background-color: #ffffff !important;  /* 背景: 白 */
+            color: #000000 !important;            /* テキスト: 黒 */
         }
         .stApp {
-            background-color: #ffffff !important; /* Streamlit全体を白に */
+            background-color: #ffffff !important; /* 全体の背景: 白 */
+        }
+
+        /* フォームやテキスト入力フィールドのスタイル */
+        input {
+            background-color: #f9f9f9 !important; /* フォーム背景: 薄いグレー */
+            color: #000000 !important;           /* 入力文字: 黒 */
+            border: 1px solid #cccccc !important; /* フォームの枠線: 薄いグレー */
+            padding: 10px;                        /* フォームの余白 */
+            border-radius: 5px;                   /* フォームの角を丸く */
+        }
+
+        /* セレクトボックスのスタイル */
+        select {
+            background-color: #f9f9f9 !important; /* 背景: 薄いグレー */
+            color: #000000 !important;           /* 選択肢: 黒 */
+            border: 1px solid #cccccc !important; /* 枠線: 薄いグレー */
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* ボタンのスタイル */
+        button {
+            background-color: #007BFF !important; /* ボタン背景: 青 */
+            color: #ffffff !important;           /* ボタン文字: 白 */
+            border: none !important;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3 !important; /* ホバー時の背景: 濃い青 */
         }
     </style>
     """, unsafe_allow_html=True)
-
-# ⚡️ カスタムCSSを追加して背景を白に固定
-st.markdown(
-    """
-    <style>
-        /* 背景全体を白に設定 */
-        body {
-            background-color: #ffffff !important; /* 背景色を白 */
-            color: #000000 !important; /* 文字色を黒 */
-        }
-
-        /* 入力フィールドの文字色と背景色 */
-        input {
-            color: #000000 !important; /* テキストの色（黒） */
-            background-color: #ffffff !important; /* 背景色（白） */
-            border: 1px solid #000000 !important; /* 枠線を黒 */
-        }
-
-        /* ラジオボタンの選択肢テキストの色 */
-        div[role="radiogroup"] label {
-            color: #000000 !important; /* ラジオボタンの文字色を黒 */
-            background-color: #ffffff !important; /* 背景を白 */
-        }
-
-        /* ボタン全般のテキスト色と背景色 */
-        button {
-            color: #000000 !important; /* ボタンテキストを黒 */
-            background-color: #ffffff !important; /* ボタン背景を白 */
-            border: 1px solid #000000 !important; /* ボタン枠線を黒 */
-        }
-
-        /* 入力フィールド全体のスタイル */
-        .stTextInput, .stRadio {
-            background-color: #ffffff !important; /* 背景色を白 */
-            color: #000000 !important; /* 文字色を黒 */
-            border-radius: 5px !important; /* 角を少し丸く */
-        }
-
-        /* フォーカス時（クリック時）の入力フィールドのスタイル */
-        input:focus {
-            outline: 2px solid #000000 !important; /* 黒のアウトライン */
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
