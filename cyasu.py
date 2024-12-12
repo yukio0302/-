@@ -5,13 +5,18 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
-# 📌 ページ設定（ライトモードを強制）
-st.set_page_config(
-    page_title="最寄りの『立春朝搾り』販売店検索アプリ",
-    page_icon="🍶",
-    layout="centered",
-    initial_sidebar_state="auto"
-)  # 括弧を閉じる
+import streamlit as st
+
+# カスタムCSSでライトモードを強制適用
+st.markdown("""
+    <style>
+        body {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
 # ⚡️ カスタムCSSを追加して背景を白に固定
 st.markdown(
     """
