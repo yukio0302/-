@@ -10,41 +10,31 @@ import pandas as pd
 st.markdown(
     """
     <style>
-        /* 全体の背景色と文字色 */
-        html, body, .stApp {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
-
-        /* ラジオボタンのラベルと選択肢の文字色 */
-        .stRadio label {
-            color: #000000 !important;
-        }
-
-        /* 入力フィールド（テキストボックス）の文字色と背景色 */
-        .stTextInput > div > input {
+        /* 入力フィールドの文字色と背景色 */
+        input {
             color: #000000 !important; /* テキストの色 */
             background-color: #ffffff !important; /* 背景色 */
         }
 
-        /* 入力フィールド（セレクトボックス）の文字色 */
-        .stSelectbox div {
-            color: #000000 !important;
+        /* ラジオボタンのラベルの文字色 */
+        div[role="radiogroup"] label {
+            color: #000000 !important; /* 黒文字に設定 */
         }
 
-        /* ラジオボタンの背景を白、選択部分を明示的に黒文字 */
-        div[data-testid="stRadio"] > label {
-            color: #000000 !important;
+        /* ラジオボタン選択肢の文字色 */
+        div[role="radiogroup"] div[role="radio"] label {
+            color: #000000 !important; /* 選択肢の文字を黒に設定 */
         }
 
-        /* ボタンの文字色（必要に応じて追加） */
-        .stButton button {
+        /* 必要に応じてボタンも黒文字に */
+        button {
             color: #000000 !important;
         }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
