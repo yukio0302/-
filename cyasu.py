@@ -4428,13 +4428,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# ラジオボタンの選択肢
-# 検索モード選択 (見た目を選択ボックス風に変更)
 search_mode = st.radio(
     "検索方法を選択してください：",
     ("住所で検索", "最寄り駅で検索"),
     key="search_mode",  # ラジオボタンの選択肢を管理するキー
-    index=0  # デフォルト値（最初に選択する項目）
 )
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
