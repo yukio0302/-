@@ -4388,6 +4388,40 @@ st.markdown(
 )
 st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
 
+# 検索方法を選択する部分（ここが修正されます）
+st.markdown("""
+    <style>
+        .stSelectbox > label {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .stSelectbox div {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 10px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #f5f5f5;
+            border: 2px solid #ccc;
+            transition: all 0.3s ease-in-out;
+        }
+        .stSelectbox div:hover {
+            background-color: #e1e1e1;
+        }
+        .stSelectbox input {
+            display: none;
+        }
+        .stSelectbox input:checked + label {
+            background-color: #4facfe;
+            color: white;
+            border: 2px solid #4facfe;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
 # 検索方法選択（ラジオボタンをselectboxに変更）
 search_mode = st.selectbox(
