@@ -1,2 +1,7 @@
 [theme]
-base="light"  # ライトモードに設定
+base = "light"
+primaryColor = "#000000"  # 黒
+backgroundColor = "#ffffff"  # 白
+secondaryBackgroundColor = "#f9f9f9"  # 薄い白
+textColor = "#000000"  # 黒
+font = "sans serif"
