@@ -4378,22 +4378,20 @@ st.markdown("""
 ["西の関"]
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
+
+
+
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
 
-# タイトルの表示
 st.markdown(
     "<h1 style='text-align: center;'>[立春朝搾り] 販売店検索</h1>",
     unsafe_allow_html=True,
 )
 st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
 
-# デフォルトの地図表示 (常に表示)
-m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
-st_folium(m, width=700, height=500)
-
-# 検索方法選択
+# 検索モード選択
 search_mode = st.radio(
     "検索方法を選択してください：",
     ("住所で検索", "最寄り駅で検索"),
@@ -4416,49 +4414,34 @@ st.markdown("""
             border: 2px solid transparent;
             text-align: center;
         }
-
         .stRadio input[type="radio"] {
             display: none;  /* ラジオボタン自体は非表示 */
         }
-
         .stRadio input[type="radio"]:checked + label {
             background: linear-gradient(90deg, #4facfe, #00f2fe);
             color: #ffffff;
             border: 2px solid #00f2fe;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-
         .stRadio input[type="radio"]:not(:checked) + label {
             background: #f2f2f2;
             color: #a6a6a6;
             border: 2px solid #cccccc;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
         .stRadio input[type="radio"]:not(:checked) + label:hover {
             background: #e6e6e6;
             color: #808080;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
-
-        /* レスポンシブ対応 */
-        @media screen and (max-width: 768px) {
-            .stRadio > label {
-                font-size: 14px;
-                padding: 8px 16px;
-            }
-        }
-
-        @media screen and (max-width: 480px) {
-            .stRadio > label {
-                font-size: 12px;
-                padding: 6px 12px;
-            }
-        }
     </style>
 """, unsafe_allow_html=True)
 
-# 住所で検索の場合
+
+# デフォルトの地図
+m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+
+
 if search_mode == "住所で検索":
     st.write("郵便番号もしくは住所を入力してください。")
     postal_code_input = st.text_input("郵便番号を入力してください（例: 123-4567）:")
@@ -4480,7 +4463,7 @@ if search_mode == "住所で検索":
             search_lat = results[0]['geometry']['lat']
             search_lon = results[0]['geometry']['lng']
 
-            # 地図の初期化 (検索結果に基づいて)
+            # 地図の初期化
             m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
             folium.Marker([search_lat, search_lon], popup=f"検索地点", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
@@ -4529,7 +4512,6 @@ if search_mode == "住所で検索":
                     st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
         else:
             st.warning("該当する住所または郵便番号が見つかりませんでした。")
-
 elif search_mode == "最寄り駅で検索":
     prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
     station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
@@ -4603,4 +4585,7 @@ elif search_mode == "最寄り駅で検索":
                 else:
                     st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
         else:
-            st.warning("該当する最寄り駅が見つかりませんでした。")
+            st.warning("該当する駅が見つかりませんでした。")
+
+# 地図のレンダリング
+st_folium(m, width=700, height=500)
