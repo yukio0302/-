@@ -4389,16 +4389,18 @@ st.markdown(
 )
 st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
 
-# 検索モード選択
+# 検索モード選択 (見た目を選択ボックス風に変更)
 search_mode = st.radio(
     "検索方法を選択してください：",
     ("住所で検索", "最寄り駅で検索"),
     key="search_mode",  # ラジオボタンの選択肢を管理するキー
+    index=0  # デフォルト値（最初に選択する項目）
 )
 
 # ラジオボタンのカスタムCSSスタイルを適用
 st.markdown("""
     <style>
+        /* ラジオボタンの全体的なスタイル */
         .stRadio > label {
             display: inline-block;
             padding: 12px 24px;
@@ -4411,13 +4413,15 @@ st.markdown("""
             transition: all 0.3s ease-in-out;
             border: 2px solid transparent;
             text-align: center;
+            background-color: #f2f2f2;
+            color: #a6a6a6;
         }
         .stRadio input[type="radio"] {
             display: none;  /* ラジオボタン自体は非表示 */
         }
         .stRadio input[type="radio"]:checked + label {
             background: linear-gradient(90deg, #4facfe, #00f2fe);
-            color: #ffffff;
+            color: white;
             border: 2px solid #00f2fe;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -4435,11 +4439,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
-
+# 検索モードに基づく処理
 if search_mode == "住所で検索":
     st.write("郵便番号もしくは住所を入力してください。")
     postal_code_input = st.text_input("郵便番号を入力してください（例: 123-4567）:")
