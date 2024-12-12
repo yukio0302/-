@@ -1,4 +1,4 @@
-GITHUB張り付け用
+# GITHUB張り付け用
 
 import streamlit as st
 import folium
