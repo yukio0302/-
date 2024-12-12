@@ -10,36 +10,42 @@ import pandas as pd
 st.markdown(
     """
     <style>
-        /* 全体の背景色と文字色を固定 */
-        html, body, .main, .stApp, .css-1v3fvcr, .css-12ttj6m, .css-1fcdlh5 {
+        /* 全体の背景色と文字色 */
+        html, body, .stApp {
             background-color: #ffffff !important;
             color: #000000 !important;
         }
 
-        /* 入力フィールドとラベルの色を明示的に指定 */
-        .stTextInput, .stRadio, .stSelectbox, .stMarkdown p {
+        /* ラジオボタンのラベルと選択肢の文字色 */
+        .stRadio label {
             color: #000000 !important;
         }
 
-        /* サイドバーの背景色と文字色 */
-        section[data-testid="stSidebar"] {
+        /* テキスト入力フィールド内の文字色 */
+        .stTextInput > div > input {
+            color: #000000 !important;
             background-color: #ffffff !important;
+        }
+
+        /* Markdown内の文字色 */
+        .stMarkdown p {
             color: #000000 !important;
         }
 
-        /* ボタンの文字色を黒に */
+        /* セレクトボックスのテキスト色 */
+        .stSelectbox div {
+            color: #000000 !important;
+        }
+
+        /* ボタンの文字色 */
         .stButton button {
             color: #000000 !important;
-        }
-
-        /* 地図のコントロールUIの背景 */
-        .leaflet-control {
-            background-color: #ffffff !important;
         }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
