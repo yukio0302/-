@@ -7,12 +7,15 @@ import pandas as pd
 
 import streamlit as st
 
-# カスタムCSSでライトモードを強制適用
+# 強制的にライトモードを適用するCSS
 st.markdown("""
     <style>
         body {
-            background-color: #ffffff !important;
-            color: #000000 !important;
+            background-color: #ffffff !important;  /* 背景を白に */
+            color: #000000 !important;            /* テキストを黒に */
+        }
+        .stApp {
+            background-color: #ffffff !important; /* Streamlit全体を白に */
         }
     </style>
     """, unsafe_allow_html=True)
