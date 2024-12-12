@@ -61,42 +61,6 @@ st.markdown("""
         button:hover {
             background-color: #0056b3 !important; /* ホバー時の背景: 濃い青 */
         }
-
-/* カスタムボタンのスタイル */
-.custom-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
-    border-radius: 50px;
-    font-size: 16px;
-    font-weight: bold;
-    border: 2px solid transparent;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-}
-
-/* 選択されているボタン */
-.custom-button-selected {
-    background: linear-gradient(to right, #4facfe, #00f2fe); /* グラデーション */
-    color: white;
-    border-color: #00f2fe;
-}
-
-/* 未選択のボタン */
-.custom-button-unselected {
-    background: white;
-    color: #4facfe;
-    border-color: #4facfe;
-}
-
-.custom-button-unselected:hover {
-    background: #e6f7ff;
-    color: #007BFF;
-}
-
-        
     </style>
     """, unsafe_allow_html=True)
 
@@ -4380,26 +4344,7 @@ st.markdown(
 st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
 
 # 検索モード選択
-# 検索モード選択 (カスタムボタンに変更)
-search_mode_html = """
-<div class="button-container">
-    <a class="custom-button custom-button-selected" id="address-search">住所で検索</a>
-    <a class="custom-button custom-button-unselected" id="station-search">最寄り駅で検索</a>
-</div>
-<script>
-    document.getElementById('address-search').onclick = function() {
-        window.location.hash = '#address-search';
-        window.location.reload();
-    }
-    document.getElementById('station-search').onclick = function() {
-        window.location.hash = '#station-search';
-        window.location.reload();
-    }
-</script>
-"""
-
-st.markdown(search_mode_html, unsafe_allow_html=True)
-
+search_mode = st.radio("検索方法を選択してください：", ("住所で検索", "最寄り駅で検索"))
 
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
