@@ -21,23 +21,23 @@ st.markdown(
             color: #000000 !important;
         }
 
-        /* テキスト入力フィールド内の文字色 */
+        /* 入力フィールド（テキストボックス）の文字色と背景色 */
         .stTextInput > div > input {
-            color: #000000 !important;
-            background-color: #ffffff !important;
+            color: #000000 !important; /* テキストの色 */
+            background-color: #ffffff !important; /* 背景色 */
         }
 
-        /* Markdown内の文字色 */
-        .stMarkdown p {
-            color: #000000 !important;
-        }
-
-        /* セレクトボックスのテキスト色 */
+        /* 入力フィールド（セレクトボックス）の文字色 */
         .stSelectbox div {
             color: #000000 !important;
         }
 
-        /* ボタンの文字色 */
+        /* ラジオボタンの背景を白、選択部分を明示的に黒文字 */
+        div[data-testid="stRadio"] > label {
+            color: #000000 !important;
+        }
+
+        /* ボタンの文字色（必要に応じて追加） */
         .stButton button {
             color: #000000 !important;
         }
@@ -45,7 +45,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
