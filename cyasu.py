@@ -4323,24 +4323,24 @@ api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
 
 st.title("日本各地の最寄り駅周辺の加盟店検索アプリ")
-st.write("最寄り駅または住所を入力して、10km圏内の加盟店を検索します。")
+st.write("住所または最寄り駅を入力して、10km圏内の加盟店を検索します。")
 
-search_type = st.radio("検索方法を選択してください:", ("住所で検索", "最寄り駅で検索"))
+# 検索モード選択
+search_mode = st.radio("検索方法を選択してください：", ("住所で検索", "最寄り駅で検索"))
 
-if search_type == "住所で検索":
-    postal_code = st.text_input("郵便番号で検索（省略可）:")
-    address = st.text_input("住所を入力してください（丁目・番地を除く）:")
+# デフォルトの地図
+m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
-    if address or postal_code:
-        query = postal_code if postal_code else address
-        results = geocoder.geocode(query, countrycode='JP', limit=1)
-
+if search_mode == "住所で検索":
+    address_input = st.text_input("住所を入力してください：")
+    if address_input:
+        results = geocoder.geocode(query=address_input, countrycode='JP', limit=1)
         if results:
-            location = results[0]['geometry']
-            search_lat, search_lon = location['lat'], location['lng']
+            search_lat = results[0]['geometry']['lat']
+            search_lon = results[0]['geometry']['lng']
 
             m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
-            folium.Marker([search_lat, search_lon], popup="検索場所", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+            folium.Marker([search_lat, search_lon], popup=f"検索地点", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
             加盟店_data["distance"] = 加盟店_data.apply(
                 lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
@@ -4376,17 +4376,15 @@ if search_type == "住所で検索":
                             icon=folium.Icon(color="blue")
                         ).add_to(m)
                         bounds.append((store['lat'], store['lon']))
-
+                    
                     if bounds:
                         m.fit_bounds(bounds)
                 else:
                     st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
         else:
-            st.warning("該当する場所が見つかりませんでした。")
-    else:
-        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+            st.warning("該当する住所が見つかりませんでした。")
 
-elif search_type == "最寄り駅で検索":
+elif search_mode == "最寄り駅で検索":
     prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
     station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
@@ -4407,7 +4405,7 @@ elif search_type == "最寄り駅で検索":
                 selected_result = results[station_options.index(selected_station)]
             else:
                 selected_result = results[0]
-
+            
             search_lat = selected_result['geometry']['lat']
             search_lon = selected_result['geometry']['lng']
 
@@ -4417,7 +4415,7 @@ elif search_type == "最寄り駅で検索":
             加盟店_data["distance"] = 加盟店_data.apply(
                 lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
             )
-     nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
+            nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
             all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
             all_brands.add("すべての銘柄")
@@ -4448,16 +4446,12 @@ elif search_type == "最寄り駅で検索":
                             icon=folium.Icon(color="blue")
                         ).add_to(m)
                         bounds.append((store['lat'], store['lon']))
-
+                    
                     if bounds:
                         m.fit_bounds(bounds)
                 else:
                     st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
         else:
             st.warning("該当する駅が見つかりませんでした。")
-    else:
-        m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
-# 地図を表示
-st_data = st_folium(m, width=700, height=500)
-
+st_folium(m, width=700, height=500)
