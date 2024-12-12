@@ -4388,7 +4388,47 @@ st.markdown(
     unsafe_allow_html=True,
 )
 st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
+# 検索方法を選択するラジオボタンのカスタムCSSスタイル
+st.markdown("""
+    <style>
+        .stRadio > label {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 10px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: capitalize;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            border: 2px solid #ccc;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        .stRadio input[type="radio"] {
+            display: none;  /* ラジオボタン自体は非表示 */
+        }
+        .stRadio input[type="radio"]:checked + label {
+            background-color: #4facfe;  /* 選択時の背景色 */
+            color: white;  /* 選択時の文字色 */
+            border: 2px solid #4facfe;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .stRadio input[type="radio"]:not(:checked) + label {
+            background-color: #f5f5f5;  /* 未選択時の背景色 */
+            color: #888;  /* 未選択時の文字色 */
+            border: 2px solid #ccc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .stRadio input[type="radio"]:not(:checked) + label:hover {
+            background-color: #e1e1e1;  /* ホバー時の背景色 */
+            color: #666;  /* ホバー時の文字色 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+""", unsafe_allow_html=True)
 
+# ラジオボタンの選択肢
 # 検索モード選択 (見た目を選択ボックス風に変更)
 search_mode = st.radio(
     "検索方法を選択してください：",
@@ -4396,49 +4436,6 @@ search_mode = st.radio(
     key="search_mode",  # ラジオボタンの選択肢を管理するキー
     index=0  # デフォルト値（最初に選択する項目）
 )
-
-# ラジオボタンのカスタムCSSスタイルを適用
-st.markdown("""
-    <style>
-        /* ラジオボタンの全体的なスタイル */
-        .stRadio > label {
-            display: inline-block;
-            padding: 12px 24px;
-            margin: 10px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            border: 2px solid transparent;
-            text-align: center;
-            background-color: #f2f2f2;
-            color: #a6a6a6;
-        }
-        .stRadio input[type="radio"] {
-            display: none;  /* ラジオボタン自体は非表示 */
-        }
-        .stRadio input[type="radio"]:checked + label {
-            background: linear-gradient(90deg, #4facfe, #00f2fe);
-            color: white;
-            border: 2px solid #00f2fe;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .stRadio input[type="radio"]:not(:checked) + label {
-            background: #f2f2f2;
-            color: #a6a6a6;
-            border: 2px solid #cccccc;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .stRadio input[type="radio"]:not(:checked) + label:hover {
-            background: #e6e6e6;
-            color: #808080;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-    </style>
-""", unsafe_allow_html=True)
-
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
 
