@@ -4337,7 +4337,7 @@ st.markdown("""
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
 
-st.title("[立春朝搾り]販売店検索")
+st.title("[立春朝搾り] 販売店検索")
 st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
 
 # 検索モード選択
