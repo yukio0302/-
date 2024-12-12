@@ -12,29 +12,40 @@ st.markdown(
     <style>
         /* 入力フィールドの文字色と背景色 */
         input {
-            color: #000000 !important; /* テキストの色 */
-            background-color: #ffffff !important; /* 背景色 */
+            color: #000000 !important; /* テキストの色（黒） */
+            background-color: #ffffff !important; /* 背景色（白） */
         }
 
-        /* ラジオボタンのラベルの文字色 */
+        /* ラジオボタンの選択肢テキストの色 */
         div[role="radiogroup"] label {
-            color: #000000 !important; /* 黒文字に設定 */
+            color: #000000 !important; /* ラジオボタンの文字色を黒 */
+            background-color: transparent !important; /* 背景を透明に設定 */
         }
 
-        /* ラジオボタン選択肢の文字色 */
-        div[role="radiogroup"] div[role="radio"] label {
-            color: #000000 !important; /* 選択肢の文字を黒に設定 */
-        }
-
-        /* 必要に応じてボタンも黒文字に */
+        /* ボタン全般のテキスト色と背景色 */
         button {
-            color: #000000 !important;
+            color: #000000 !important; /* ボタンテキストを黒 */
+            background-color: #ffffff !important; /* ボタン背景を白 */
+        }
+
+        /* Streamlitのウィジェット全体を白背景に */
+        .stTextInput, .stRadio {
+            background-color: #ffffff !important; /* 背景色を白に */
+        }
+
+        /* フォーカス時（クリック時）の入力フィールドのスタイル */
+        input:focus {
+            outline: 2px solid #000000 !important; /* 黒のアウトライン */
+        }
+
+        /* フォーカス時のラジオボタンの選択状態 */
+        div[role="radio"]:focus {
+            border: 1px solid #000000 !important; /* 黒のボーダー */
         }
     </style>
     """,
     unsafe_allow_html=True
 )
-
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
