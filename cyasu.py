@@ -62,52 +62,45 @@ st.markdown("""
             background-color: #0056b3 !important; /* ホバー時の背景: 濃い青 */
         }
 
-/* カスタムボタンのスタイル */
-[data-baseweb="radio"] > div {
-    display: flex;
-    justify-content: center; /* 中央揃え */
-    gap: 10px; /* ボタン間の間隔 */
-    margin: 20px 0; /* 上下の余白 */
-}
-
-[data-baseweb="radio"] > div > label {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
-    border-radius: 30px; /* ボタンを丸く */
+/* ボタンの共通スタイル */
+.custom-button {
+    display: inline-block;
+    padding: 12px 24px;
+    margin: 10px;
+    border-radius: 30px;
     font-size: 16px;
     font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
     cursor: pointer;
-    text-transform: uppercase; /* 大文字化 */
     transition: all 0.3s ease-in-out;
-    border: 2px solid transparent; /* 初期の境界線なし */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影 */
+    border: none;
+    outline: none;
+    text-decoration: none;
 }
 
-[data-baseweb="radio"] > div > label:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* ホバー時の影 */
+/* 選択されている状態のボタン */
+.custom-button.selected {
+    background: linear-gradient(90deg, #4facfe, #00f2fe);
+    color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-[data-baseweb="radio"] > div > label[data-selected="true"] {
-    background: linear-gradient(90deg, #4facfe, #00f2fe); /* グラデーション背景 */
-    color: white;
-    border: 2px solid #00f2fe;
-}
-
-[data-baseweb="radio"] > div > label[data-selected="false"] {
-    background: #f2f2f2; /* 非選択時の背景 */
-    color: #a6a6a6; /* 非選択時の文字色 */
+/* 未選択状態のボタン */
+.custom-button.unselected {
+    background: #f2f2f2;
+    color: #a6a6a6;
     border: 2px solid #cccccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-[data-baseweb="radio"] > div > label[data-selected="false"]:hover {
-    background: #e6e6e6; /* ホバー時の非選択背景 */
-    color: #808080; /* ホバー時の文字色 */
+/* ホバー時のスタイル */
+.custom-button.unselected:hover {
+    background: #e6e6e6;
+    color: #808080;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
-
-        
-    </style>
+        </style>
     """, unsafe_allow_html=True)
 
 # 加盟店データ（850店分）を直接記述
@@ -4390,7 +4383,63 @@ st.markdown(
 st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
 
 # 検索モード選択
-search_mode = st.radio("検索方法を選択してください：", ("住所で検索", "最寄り駅で検索"))
+# カスタムボタンのデザインと実装
+if "search_mode" not in st.session_state:
+    st.session_state.search_mode = "住所で検索"  # デフォルトの検索モード
+
+st.markdown("""
+    <style>
+        .custom-button {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            border: none;
+            outline: none;
+            text-decoration: none;
+        }
+        .custom-button.selected {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            color: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .custom-button.unselected {
+            background: #f2f2f2;
+            color: #a6a6a6;
+            border: 2px solid #cccccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .custom-button.unselected:hover {
+            background: #e6e6e6;
+            color: #808080;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# ボタンのHTML
+st.markdown(f"""
+    <div style="text-align: center;">
+        <button class="custom-button {'selected' if st.session_state.search_mode == '住所で検索' else 'unselected'}" onclick="fetch('/?mode=住所で検索').then(() => location.reload())">住所で検索</button>
+        <button class="custom-button {'selected' if st.session_state.search_mode == '最寄り駅で検索' else 'unselected'}" onclick="fetch('/?mode=最寄り駅で検索').then(() => location.reload())">最寄り駅で検索</button>
+    </div>
+""", unsafe_allow_html=True)
+
+# URLパラメータから検索モードを切り替え
+import urllib.parse
+query_params = st.experimental_get_query_params()
+if "mode" in query_params:
+    st.session_state.search_mode = query_params["mode"][0]
+
+# 現在の検索モードを表示
+st.write(f"現在の検索モード: {st.session_state.search_mode}")
+
 
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
