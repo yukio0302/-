@@ -17,6 +17,17 @@ st.markdown("""
         }
         .stApp {
             background-color: #ffffff !important; /* 全体の背景: 白 */
+            color: #000000 !important;           /* テキスト: 黒 */
+        }
+
+        /* ヘッダーや見出しのスタイルを明確化 */
+        h1, h2, h3, h4, h5, h6 {
+            color: #000000 !important;  /* 見出しの文字色を黒 */
+        }
+
+        /* テキストやラベルのスタイル */
+        p, label {
+            color: #000000 !important;  /* 残りのテキストも黒 */
         }
 
         /* フォームやテキスト入力フィールドのスタイル */
