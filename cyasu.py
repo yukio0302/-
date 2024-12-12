@@ -9,42 +9,48 @@ import pandas as pd
 st.markdown(
     """
     <style>
+        /* 背景全体を白に設定 */
+        body {
+            background-color: #ffffff !important; /* 背景色を白 */
+            color: #000000 !important; /* 文字色を黒 */
+        }
+
         /* 入力フィールドの文字色と背景色 */
         input {
             color: #000000 !important; /* テキストの色（黒） */
             background-color: #ffffff !important; /* 背景色（白） */
+            border: 1px solid #000000 !important; /* 枠線を黒 */
         }
 
         /* ラジオボタンの選択肢テキストの色 */
         div[role="radiogroup"] label {
             color: #000000 !important; /* ラジオボタンの文字色を黒 */
-            background-color: transparent !important; /* 背景を透明に設定 */
+            background-color: #ffffff !important; /* 背景を白 */
         }
 
         /* ボタン全般のテキスト色と背景色 */
         button {
             color: #000000 !important; /* ボタンテキストを黒 */
             background-color: #ffffff !important; /* ボタン背景を白 */
+            border: 1px solid #000000 !important; /* ボタン枠線を黒 */
         }
 
-        /* Streamlitのウィジェット全体を白背景に */
+        /* 入力フィールド全体のスタイル */
         .stTextInput, .stRadio {
-            background-color: #ffffff !important; /* 背景色を白に */
+            background-color: #ffffff !important; /* 背景色を白 */
+            color: #000000 !important; /* 文字色を黒 */
+            border-radius: 5px !important; /* 角を少し丸く */
         }
 
         /* フォーカス時（クリック時）の入力フィールドのスタイル */
         input:focus {
             outline: 2px solid #000000 !important; /* 黒のアウトライン */
         }
-
-        /* フォーカス時のラジオボタンの選択状態 */
-        div[role="radio"]:focus {
-            border: 1px solid #000000 !important; /* 黒のボーダー */
-        }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
