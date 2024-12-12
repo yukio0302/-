@@ -11,14 +11,13 @@ st.markdown(
     """
     <style>
         /* 全体の背景色と文字色を固定 */
-        html, body, .main, .stApp {
+        html, body, .main, .stApp, .css-1v3fvcr, .css-12ttj6m, .css-1fcdlh5 {
             background-color: #ffffff !important;
             color: #000000 !important;
         }
 
-        /* スクロールバーなどの表示に影響を与える要素の修正 */
-        .css-18e3th9, .stTextInput, .stButton button, .stMarkdown, .css-1n543e5 {
-            background-color: #ffffff !important;
+        /* 入力フィールドとラベルの色を明示的に指定 */
+        .stTextInput, .stRadio, .stSelectbox, .stMarkdown p {
             color: #000000 !important;
         }
 
@@ -28,27 +27,19 @@ st.markdown(
             color: #000000 !important;
         }
 
-        /* ボタンと入力フィールドの色 */
+        /* ボタンの文字色を黒に */
         .stButton button {
             color: #000000 !important;
         }
-        input[type="text"] {
-            background-color: #ffffff !important;
-            color: #000000 !important;
-        }
 
-        /* ダークモードの影響を除外 */
-        @media (prefers-color-scheme: dark) {
-            html, body, .main, .stApp, .css-18e3th9, .stTextInput, .stButton button, .stMarkdown {
-                background-color: #ffffff !important;
-                color: #000000 !important;
-            }
+        /* 地図のコントロールUIの背景 */
+        .leaflet-control {
+            background-color: #ffffff !important;
         }
     </style>
     """,
     unsafe_allow_html=True
 )
-
 
 # 加盟店データ（850店分）を直接記述
 加盟店_data = pd.DataFrame({
