@@ -4400,9 +4400,6 @@ search_mode_html = """
 
 st.markdown(search_mode_html, unsafe_allow_html=True)
 
-# URLハッシュで検索モードを切り替え
-search_mode = "住所で検索" if st.experimental_get_query_params().get("hash", [""])[0] == "address-search" else "最寄り駅で検索"
-
 
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
