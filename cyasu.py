@@ -4389,8 +4389,6 @@ st.markdown("""
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
 
-st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
-
 # 検索モード選択
 search_mode = st.radio(
     "検索方法を選択してください：",
