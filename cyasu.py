@@ -8,7 +8,6 @@ import pandas as pd
 import streamlit as st
 
 # カスタムCSSを適用
-st.image("/mnt/data/kensakup_top.png", use_column_width=True)
 st.markdown("""
     <style>
         /* 背景色を白、テキスト色を黒に設定 */
