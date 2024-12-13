@@ -8,6 +8,13 @@ import pandas as pd
 import streamlit as st
 
 # カスタムCSSを適用
+# ライブラリ追加
+from PIL import Image
+
+img = Image.open('sample.jpg')
+
+# use_column_width 実際のレイアウトの横幅に合わせるか
+st.image(img, caption='Super Mario', use_column_width=True)
 st.image("https://drive.google.com/file/d/1dtABF6FBQUJUNWtucn7WLuJptIMApR0g/view?usp=sharing", use_column_width=True)
 st.markdown("""
     <style>
