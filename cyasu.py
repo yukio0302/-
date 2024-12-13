@@ -9,6 +9,7 @@ import streamlit as st
 
 # カスタムCSSを適用
 st.image("kensakup_top.png", use_column_width=True)
+st.image("kensakup_topmain.png", use_column_width=True)
 st.markdown("""
     <style>
         /* 背景色を白、テキスト色を黒に設定 */
