@@ -5,6 +5,8 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 
+import streamlit as st
+
 # カスタムCSSを適用
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
@@ -64,49 +66,51 @@ st.markdown("""
             background-color: #0056b3 !important; /* ホバー時の背景: 濃い青 */
         }
 
-        /* カスタムボタンのスタイル */
-        [data-baseweb="radio"] > div {
-            display: flex;
-            justify-content: center; /* 中央揃え */
-            gap: 10px; /* ボタン間の間隔 */
-            margin: 20px 0; /* 上下の余白 */
-        }
+/* カスタムボタンのスタイル */
+[data-baseweb="radio"] > div {
+    display: flex;
+    justify-content: center; /* 中央揃え */
+    gap: 10px; /* ボタン間の間隔 */
+    margin: 20px 0; /* 上下の余白 */
+}
 
-        [data-baseweb="radio"] > div > label {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 20px;
-            border-radius: 30px; /* ボタンを丸く */
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase; /* 大文字化 */
-            transition: all 0.3s ease-in-out;
-            border: 2px solid transparent; /* 初期の境界線なし */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影 */
-        }
+[data-baseweb="radio"] > div > label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border-radius: 30px; /* ボタンを丸く */
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase; /* 大文字化 */
+    transition: all 0.3s ease-in-out;
+    border: 2px solid transparent; /* 初期の境界線なし */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影 */
+}
 
-        [data-baseweb="radio"] > div > label:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* ホバー時の影 */
-        }
+[data-baseweb="radio"] > div > label:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* ホバー時の影 */
+}
 
-        [data-baseweb="radio"] > div > label[data-selected="true"] {
-            background: linear-gradient(90deg, #4facfe, #00f2fe); /* グラデーション背景 */
-            color: white;
-            border: 2px solid #00f2fe;
-        }
+[data-baseweb="radio"] > div > label[data-selected="true"] {
+    background: linear-gradient(90deg, #4facfe, #00f2fe); /* グラデーション背景 */
+    color: white;
+    border: 2px solid #00f2fe;
+}
 
-        [data-baseweb="radio"] > div > label[data-selected="false"] {
-            background: #f2f2f2; /* 非選択時の背景 */
-            color: #a6a6a6; /* 非選択時の文字色 */
-            border: 2px solid #cccccc;
-        }
+[data-baseweb="radio"] > div > label[data-selected="false"] {
+    background: #f2f2f2; /* 非選択時の背景 */
+    color: #a6a6a6; /* 非選択時の文字色 */
+    border: 2px solid #cccccc;
+}
 
-        [data-baseweb="radio"] > div > label[data-selected="false"]:hover {
-            background: #e6e6e6; /* ホバー時の非選択背景 */
-            color: #808080; /* ホバー時の文字色 */
-        }
+[data-baseweb="radio"] > div > label[data-selected="false"]:hover {
+    background: #e6e6e6; /* ホバー時の非選択背景 */
+    color: #808080; /* ホバー時の文字色 */
+}
+
+        
     </style>
     """, unsafe_allow_html=True)
 
@@ -4379,107 +4383,208 @@ st.markdown("""
 ]  # 1つの店舗で複数銘柄を取り扱い可能に
 })
 
+
+
 # OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
 
 st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
-# ユーザー入力（郵便番号または住所）
-address_input = st.text_input("住所または郵便番号を入力してください")
-search_button = st.button("検索する")
 
-# ユーザーの現在地を取得
-user_coords = None
-if search_button and address_input:
-    try:
-        location = geocoder.geocode(address_input)
-        if location:
-            user_coords = (location[0]['geometry']['lat'], location[0]['geometry']['lng'])
-            st.success(f"位置情報を取得しました: {user_coords}")
-        else:
-            st.error("住所または郵便番号から位置情報を取得できませんでした。もう一度お試しください。")
-    except Exception as e:
-        st.error(f"エラーが発生しました: {e}")
+# 検索モード選択
+search_mode = st.radio(
+    "検索方法を選択してください：",
+    ("住所で検索", "最寄り駅で検索"),
+    key="search_mode",  # ラジオボタンの選択肢を管理するキー
+)
 
-# ユーザー位置が取得できた場合
-if user_coords:
-    # 加盟店データに距離を計算して追加
-    加盟店_data["distance_km"] = 加盟店_data.apply(
-        lambda row: geodesic(user_coords, (row["lat"], row["lon"])).km, axis=1
-    )
-    
-    # 10km以内の加盟店を抽出
-    filtered_data = 加盟店_data[加盟店_data["distance_km"] <= 10]
-
-    if filtered_data.empty:
-        st.warning("10km圏内に加盟店が見つかりませんでした。")
-    else:
-        st.write("10km圏内の加盟店リスト:")
-        for _, row in filtered_data.iterrows():
-            store_name = row["name"]
-            store_distance = row["distance_km"]
-            store_url = row["url"]
-            st.markdown(f"- [{store_name} ({store_distance:.2f} km)]({store_url})")
-
-        # 銘柄選択の表示
-        st.write("以下の加盟店で取り扱っている銘柄を選択できます。")
-        store_options = {
-            row["name"]: row["銘柄"]
-            for _, row in filtered_data.iterrows()
-            if any(row["銘柄"])  # 銘柄が空でない店舗のみ
+# ラジオボタンのカスタムCSSスタイルを適用
+st.markdown("""
+    <style>
+        .stRadio > label {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            border: 2px solid transparent;
+            text-align: center;
         }
+        .stRadio input[type="radio"] {
+            display: none;  /* ラジオボタン自体は非表示 */
+        }
+        .stRadio input[type="radio"]:checked + label {
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            color: #ffffff;
+            border: 2px solid #00f2fe;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .stRadio input[type="radio"]:not(:checked) + label {
+            background: #f2f2f2;
+            color: #a6a6a6;
+            border: 2px solid #cccccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .stRadio input[type="radio"]:not(:checked) + label:hover {
+            background: #e6e6e6;
+            color: #808080;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-        # 銘柄がある場合にラジオボタンを表示
-        if store_options:
-            selected_store = st.radio(
-                "店舗を選択してください:",
-                list(store_options.keys())
-            )
-            
-            if selected_store:
-                available_brands = store_options[selected_store]
-                st.write(f"選択した店舗「{selected_store}」の取り扱い銘柄:")
-                for brand in available_brands:
-                    st.markdown(f"- {brand}")
+
+# デフォルトの地図
+m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+
+
+if search_mode == "住所で検索":
+    postal_code_input = st.text_input("郵便番号を入力してください（例: 123-4567）:")
+    address_input = st.text_input("住所（番地・号を除く）を入力してください:")
+
+    # 検索処理
+    if postal_code_input or address_input:
+        if postal_code_input:
+            # 郵便番号で検索
+            query = postal_code_input
         else:
-            st.info("表示可能な銘柄はありません。")
-import folium
-from streamlit_folium import st_folium
+            # 住所で検索
+            query = address_input
 
-# 地図表示部分
-if user_coords:
-    # 地図を初期化（ユーザーの位置を中心に設定）
-    map_center = user_coords
-    store_map = folium.Map(location=map_center, zoom_start=12)
+        results = geocoder.geocode(query=query, countrycode='JP', limit=1)
 
-    # ユーザーの現在地を地図に追加
-    folium.Marker(
-        location=user_coords,
-        popup="現在地",
-        icon=folium.Icon(color="blue", icon="info-sign")
-    ).add_to(store_map)
+        if results:
+            # 検索地点の座標を取得
+            search_lat = results[0]['geometry']['lat']
+            search_lon = results[0]['geometry']['lng']
 
-    # 加盟店の位置を地図に追加
-    if not filtered_data.empty:
-        for _, row in filtered_data.iterrows():
-            store_location = (row["lat"], row["lon"])
-            folium.Marker(
-                location=store_location,
-                popup=f"{row['name']}\n{row['distance_km']:.2f} km",
-                icon=folium.Icon(color="green", icon="shopping-cart")
-            ).add_to(store_map)
+            # 地図の初期化
+            m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+            folium.Marker([search_lat, search_lon], popup=f"検索地点", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
-    # 地図をStreamlitに表示
-    st.write("### 加盟店と現在地の地図")
-    st_folium(store_map, width=700, height=500)
-else:
-    st.info("地図は現在地が設定された場合に表示されます。")
+            # 加盟店データとの距離計算
+            加盟店_data["distance"] = 加盟店_data.apply(
+                lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
+            )
 
-# さらに次のステップ
-st.write("### 今後の拡張案")
-"""
-1. 加盟店情報の更新頻度を増やし、より正確なデータを提供。
-2. ユーザーが選択した店舗で取り扱っている銘柄を詳細表示。
-3. 銘柄ごとの詳細情報を地図やリスト形式で表示。
-"""
+            # 10km以内の加盟店をフィルタリング
+            nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
+            # 検索エリアの取り扱い銘柄一覧を表示
+            all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
+            all_brands.add("すべての銘柄")
+            selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+
+            if selected_brand:
+                if selected_brand == "すべての銘柄":
+                    filtered_stores = nearby_stores
+                else:
+                    filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
+
+                if not filtered_stores.empty:
+                    bounds = []
+                    for _, store in filtered_stores.iterrows():
+                        brand_html = "".join(
+                            f'<span style="background-color: red; color: white; padding: 2px 4px; margin: 2px; display: inline-block;">{brand}</span>'
+                            for brand in store['銘柄']
+                        )
+                        popup_content = f"""
+                        <b>{store['name']}</b><br>
+                        <a href="{store['url']}" target="_blank">加盟店詳細はこちら</a><br>
+                        銘柄: {brand_html}<br>
+                        距離: {store['distance']:.2f} km
+                        """
+                        folium.Marker(
+                            [store['lat'], store['lon']],
+                            popup=folium.Popup(popup_content, max_width=300),
+                            icon=folium.Icon(color="blue")
+                        ).add_to(m)
+                        bounds.append((store['lat'], store['lon']))
+
+                    if bounds:
+                        m.fit_bounds(bounds)
+                else:
+                    st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
+        else:
+            st.warning("該当する住所または郵便番号が見つかりませんでした。")
+elif search_mode == "最寄り駅で検索":
+    prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
+    station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
+
+    if station_name:
+        # 駅名の形式を確認
+        search_query = station_name if "駅" in station_name else station_name + "駅"
+        if prefecture_input:
+            search_query = f"{prefecture_input} {search_query}"
+
+        # 駅名で検索
+        results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
+
+        if results:
+            if len(results) > 1:
+                st.write("該当する駅が複数見つかりました。都道府県の入力もしくは候補から選択してください。")
+                station_options = [
+                    f"{result['components'].get('state', '')} {result['formatted']}" for result in results
+                ]
+                selected_station = st.selectbox("選択してください：", station_options)
+                selected_result = results[station_options.index(selected_station)]
+            else:
+                selected_result = results[0]
+            
+            search_lat = selected_result['geometry']['lat']
+            search_lon = selected_result['geometry']['lng']
+
+            # 地図の初期化
+            m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+            folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+
+            # 加盟店データとの距離計算
+            加盟店_data["distance"] = 加盟店_data.apply(
+                lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
+            )
+            nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
+
+         # 検索エリアの取り扱い銘柄一覧を表示
+            all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
+            all_brands.add("すべての銘柄")
+            selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+
+            if selected_brand:
+                if selected_brand == "すべての銘柄":
+                    filtered_stores = nearby_stores
+                else:
+                    filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
+
+                if not filtered_stores.empty:
+                    bounds = []
+                    for _, store in filtered_stores.iterrows():
+                        brand_html = "".join(
+                            f'<span style="background-color: red; color: white; padding: 2px 4px; margin: 2px; display: inline-block;">{brand}</span>'
+                            for brand in store['銘柄']
+                        )
+                        popup_content = f"""
+                        <b>{store['name']}</b><br>
+                        <a href="{store['url']}" target="_blank">加盟店詳細はこちら</a><br>
+                        銘柄: {brand_html}<br>
+                        距離: {store['distance']:.2f} km
+                        """
+                        folium.Marker(
+                            [store['lat'], store['lon']],
+                            popup=folium.Popup(popup_content, max_width=300),
+                            icon=folium.Icon(color="blue")
+                        ).add_to(m)
+                        bounds.append((store['lat'], store['lon']))
+
+                    if bounds:
+                        m.fit_bounds(bounds)
+                else:
+                    st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
+        else:
+            st.warning("該当する駅が見つかりませんでした。")
+
+# 地図のレンダリング
+st_folium(m, width=700, height=500)
