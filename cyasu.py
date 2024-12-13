@@ -4474,9 +4474,13 @@ if search_mode == "住所で検索":
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
             # 検索エリアの取り扱い銘柄一覧を表示
-            all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
-            all_brands.add("すべての銘柄")
-            selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+# 空の銘柄リストを除外する
+all_brands = set(brand for brands in nearby_stores['銘柄'] if brands != [""] for brand in brands)
+all_brands.add("すべての銘柄")
+
+# ラジオボタンに表示する銘柄を定義
+selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+
 
             if selected_brand:
                 if selected_brand == "すべての銘柄":
