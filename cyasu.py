@@ -4443,7 +4443,6 @@ m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cy
 
 
 if search_mode == "住所で検索":
-    st.write("郵便番号もしくは住所を入力してください。")
     postal_code_input = st.text_input("郵便番号を入力してください（例: 123-4567）:")
     address_input = st.text_input("住所（番地・号を除く）を入力してください:")
 
