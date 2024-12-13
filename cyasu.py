@@ -4474,10 +4474,15 @@ if search_mode == "住所で検索":
             # 10km以内の加盟店をフィルタリング
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-          # 検索エリアの取り扱い銘柄一覧を表示
+         # 検索エリアの取り扱い銘柄一覧を表示
 all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands if brand.strip())
 all_brands.add("すべての銘柄")
 selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+
+# 必要に応じて、selected_brand の処理を以下に記述
+if selected_brand:  # このインデントが適切であるか確認してください
+    st.write(f"選択された銘柄: {selected_brand}")
+
 
 
             if selected_brand:
