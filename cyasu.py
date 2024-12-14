@@ -79,7 +79,7 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     padding: 10px 20px;
-    border-radius: 30px; /* ボタンを丸く */
+    border-radius: 10px; /* ボタンを丸く */
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
