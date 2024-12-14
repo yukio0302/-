@@ -17,7 +17,7 @@ link_url = "https://www.meimonshu.jp/modules/xfsection/article.php?articleid=377
 # HTMLを使って画像をリンクとして埋め込む
 st.markdown(
     f'<a href="{link_url}" target="_blank"><img src="{image_path}" style="width:100%;"></a>',
-    unsafe_allow_html=True
+    unsafe_allow_html=True)
 st.image("kensakup_to-map.png", use_column_width=True)
 st.markdown("""
     <style>
