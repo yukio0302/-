@@ -10,7 +10,7 @@ import streamlit as st
 # カスタムCSSを適用
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
- st.image("to-kousikip.png", use_column_width=True)
+st.image("to-kousikip.png", use_column_width=True)
 st.image("kensakup_to-map.png", use_column_width=True)
 st.markdown("""
     <style>
