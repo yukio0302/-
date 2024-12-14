@@ -4520,8 +4520,6 @@ if 'nearby_stores' in locals() and not nearby_stores.empty:  # nearby_stores が
                 m.fit_bounds(bounds)
         else:
             st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
-else:
-    st.warning("10km圏内の加盟店が見つかりませんでした。地図は表示されません。")
 
 
 # 最寄り駅で検索の分岐
