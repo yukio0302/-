@@ -70,8 +70,8 @@ st.markdown("""
 [data-baseweb="radio"] > div {
     display: flex;
     justify-content: center; /* 中央揃え */
-    gap: 10px; /* ボタン間の間隔 */
-    margin: 20px 0; /* 上下の余白 */
+    gap: 3px; /* ボタン間の間隔 */
+    margin: 5px 0; /* 上下の余白 */
 }
 
 [data-baseweb="radio"] > div > label {
