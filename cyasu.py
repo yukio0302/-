@@ -4482,14 +4482,10 @@ selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(a
 # 必要に応じて、selected_brand の処理を以下に記述
 if selected_brand:  # このインデントが適切であるか確認してください
     st.write(f"選択された銘柄: {selected_brand}")
-
-
-
-            if selected_brand:
-                if selected_brand == "すべての銘柄":
-                    filtered_stores = nearby_stores
-                else:
-                    filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
+if selected_brand:
+if selected_brand == "すべての銘柄":
+filtered_stores = nearby_stores
+else:filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
 
                 if not filtered_stores.empty:
                     bounds = []
