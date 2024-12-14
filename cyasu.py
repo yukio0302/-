@@ -90,14 +90,35 @@ if search_mode == "最寄り駅で検索":
 
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-# **加盟店のピンを追加する処理**
+# **取り扱い銘柄の表示（元のまま）**
 if 'nearby_stores' in locals() and not nearby_stores.empty:
-    for _, store in nearby_stores.iterrows():
-        folium.Marker(
-            [store["lat"], store["lon"]],
-            popup=f"<b>{store['name']}</b><br>距離: {store['distance']:.2f} km",
-            icon=folium.Icon(color="blue"),
-        ).add_to(m)
+    if "銘柄" in nearby_stores.columns:
+        all_brands = set(
+            brand for brands in nearby_stores["銘柄"]
+            if brands and brands != [""]  # 空リストまたは取り扱い銘柄なしの処理
+            for brand in brands
+        )
+    else:
+        all_brands = set()
+    all_brands.add("すべての銘柄")
+
+    selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+
+    if selected_brand:
+        if selected_brand == "すべての銘柄":
+            filtered_stores = nearby_stores
+        else:
+            filtered_stores = nearby_stores[
+                nearby_stores["銘柄"].apply(lambda brands: selected_brand in brands)
+            ]
+
+        if not filtered_stores.empty:
+            for _, store in filtered_stores.iterrows():
+                folium.Marker(
+                    [store["lat"], store["lon"]],
+                    popup=f"<b>{store['name']}</b><br>距離: {store['distance']:.2f} km",
+                    icon=folium.Icon(color="blue"),
+                ).add_to(m)
 
 # 地図のレンダリング
 st_folium(m, width=700, height=500)
