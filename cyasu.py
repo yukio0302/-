@@ -10,7 +10,14 @@ import streamlit as st
 # カスタムCSSを適用
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
-st.image("to-kousikip.png", use_column_width=True)
+# 表示する画像のURL
+image_path = "to-kousikip.png"  # ローカル画像
+link_url = "https://www.meimonshu.jp/modules/xfsection/article.php?articleid=377"  # 埋め込みたいリンク先
+
+# HTMLを使って画像をリンクとして埋め込む
+st.markdown(
+    f'<a href="{link_url}" target="_blank"><img src="{image_path}" style="width:100%;"></a>',
+    unsafe_allow_html=True
 st.image("kensakup_to-map.png", use_column_width=True)
 st.markdown("""
     <style>
