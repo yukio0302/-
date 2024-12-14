@@ -11,7 +11,7 @@ import streamlit as st
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
 # 表示する画像のURL
-image_path = "to-kousikip.png"  # ローカル画像
+image_path = st.image("to-kousikip.png", use_column_width=True)  # ローカル画像
 link_url = "https://www.meimonshu.jp/modules/xfsection/article.php?articleid=377"  # 埋め込みたいリンク先
 
 # HTMLを使って画像をリンクとして埋め込む
