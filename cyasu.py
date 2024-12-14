@@ -4474,7 +4474,7 @@ if search_mode == "住所で検索":
             # 10km以内の加盟店をフィルタリング
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-     # 検索エリアの取り扱い銘柄一覧を表示
+    # 検索エリアの取り扱い銘柄一覧を表示
 if "銘柄" in nearby_stores.columns:
     all_brands = set(
         brand for brands in nearby_stores["銘柄"]
@@ -4523,7 +4523,7 @@ else:
     st.warning("該当する住所または郵便番号が見つかりませんでした。")
 
 # 最寄り駅で検索の分岐
-elif search_mode == "最寄り駅で検索":
+if search_mode == "最寄り駅で検索":
     prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
     station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
 
