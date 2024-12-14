@@ -51,11 +51,21 @@ if search_mode == "住所で検索":
             search_lat = results[0]['geometry']['lat']
             search_lon = results[0]['geometry']['lng']
 
-            # **検索地点を中心にする地図の作成**
-            m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+            # **自動ズームの処理を追加**
+            if 'nearby_stores' in locals() and not nearby_stores.empty:
+                latitudes = nearby_stores['lat'].tolist()
+                longitudes = nearby_stores['lon'].tolist()
+                latitudes.append(search_lat)
+                longitudes.append(search_lon)
+                sw = [min(latitudes), min(longitudes)]  # 南西座標 (South-West)
+                ne = [max(latitudes), max(longitudes)]  # 北東座標 (North-East)
+                m = folium.Map(location=[search_lat, search_lon], tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+                m.fit_bounds([sw, ne])  # 地図の表示範囲を調整
+            else:
+                m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+
             folium.Marker([search_lat, search_lon], popup=f"検索地点", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
-            # 加盟店データとの距離計算
             加盟店_data["distance"] = 加盟店_data.apply(
                 lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
             )
@@ -79,11 +89,21 @@ if search_mode == "最寄り駅で検索":
             search_lat = selected_result["geometry"]["lat"]
             search_lon = selected_result["geometry"]["lng"]
 
-            # **検索地点を中心にする地図の作成**
-            m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+            # **自動ズームの処理を追加**
+            if 'nearby_stores' in locals() and not nearby_stores.empty:
+                latitudes = nearby_stores['lat'].tolist()
+                longitudes = nearby_stores['lon'].tolist()
+                latitudes.append(search_lat)
+                longitudes.append(search_lon)
+                sw = [min(latitudes), min(longitudes)]  # 南西座標 (South-West)
+                ne = [max(latitudes), max(longitudes)]  # 北東座標 (North-East)
+                m = folium.Map(location=[search_lat, search_lon], tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+                m.fit_bounds([sw, ne])  # 地図の表示範囲を調整
+            else:
+                m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
+
             folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
 
-            # 加盟店データとの距離計算
             加盟店_data["distance"] = 加盟店_data.apply(
                 lambda row: geodesic((search_lat, search_lon), (row["lat"], row["lon"])).km, axis=1
             )
@@ -103,22 +123,6 @@ if 'nearby_stores' in locals() and not nearby_stores.empty:
     all_brands.add("すべての銘柄")
 
     selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
-
-    if selected_brand:
-        if selected_brand == "すべての銘柄":
-            filtered_stores = nearby_stores
-        else:
-            filtered_stores = nearby_stores[
-                nearby_stores["銘柄"].apply(lambda brands: selected_brand in brands)
-            ]
-
-        if not filtered_stores.empty:
-            for _, store in filtered_stores.iterrows():
-                folium.Marker(
-                    [store["lat"], store["lon"]],
-                    popup=f"<b>{store['name']}</b><br>距離: {store['distance']:.2f} km",
-                    icon=folium.Icon(color="blue"),
-                ).add_to(m)
 
 # 地図のレンダリング
 st_folium(m, width=700, height=500)
