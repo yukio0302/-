@@ -4474,7 +4474,7 @@ if search_mode == "住所で検索":
             # 10km以内の加盟店をフィルタリング
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-       # 検索エリアの取り扱い銘柄一覧を表示
+     # 検索エリアの取り扱い銘柄一覧を表示
 if "銘柄" in nearby_stores.columns:
     all_brands = set(
         brand for brands in nearby_stores["銘柄"]
@@ -4522,6 +4522,7 @@ if selected_brand:
 else:
     st.warning("該当する住所または郵便番号が見つかりませんでした。")
 
+# 最寄り駅で検索の分岐
 elif search_mode == "最寄り駅で検索":
     prefecture_input = st.text_input("都道府県を入力してください（省略可）:")
     station_name = st.text_input("最寄り駅名を入力してください（「駅」は省略可能です）:")
@@ -4533,7 +4534,7 @@ elif search_mode == "最寄り駅で検索":
             search_query = f"{prefecture_input} {search_query}"
 
         # 駅名で検索
-        results = geocoder.geocode(query=search_query, countrycode='JP', limit=5)
+        results = geocoder.geocode(query=search_query, countrycode="JP", limit=5)
 
         if results:
             if len(results) > 1:
@@ -4545,22 +4546,35 @@ elif search_mode == "最寄り駅で検索":
                 selected_result = results[station_options.index(selected_station)]
             else:
                 selected_result = results[0]
-            
-            search_lat = selected_result['geometry']['lat']
-            search_lon = selected_result['geometry']['lng']
+
+            search_lat = selected_result["geometry"]["lat"]
+            search_lon = selected_result["geometry"]["lng"]
 
             # 地図の初期化
-            m = folium.Map(location=[search_lat, search_lon], zoom_start=15, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
-            folium.Marker([search_lat, search_lon], popup=f"{station_name}駅", icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+            m = folium.Map(
+                location=[search_lat, search_lon],
+                zoom_start=15,
+                tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
+                attr="国土地理院",
+            )
+            folium.Marker(
+                [search_lat, search_lon],
+                popup=f"{station_name}駅",
+                icon=folium.Icon(color="red", icon="info-sign"),
+            ).add_to(m)
 
             # 加盟店データとの距離計算
             加盟店_data["distance"] = 加盟店_data.apply(
-                lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
+                lambda row: geodesic((search_lat, search_lon), (row["lat"], row["lon"])).km, axis=1
             )
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-         # 検索エリアの取り扱い銘柄一覧を表示
-            all_brands = set(brand for brands in nearby_stores['銘柄'] for brand in brands)
+            # 検索エリアの取り扱い銘柄一覧を表示
+            all_brands = set(
+                brand for brands in nearby_stores["銘柄"]
+                if brands and brands != [""]  # 空リストまたは取り扱い銘柄なしの処理
+                for brand in brands
+            )
             all_brands.add("すべての銘柄")
             selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
 
@@ -4568,14 +4582,16 @@ elif search_mode == "最寄り駅で検索":
                 if selected_brand == "すべての銘柄":
                     filtered_stores = nearby_stores
                 else:
-                    filtered_stores = nearby_stores[nearby_stores['銘柄'].apply(lambda brands: selected_brand in brands)]
+                    filtered_stores = nearby_stores[
+                        nearby_stores["銘柄"].apply(lambda brands: selected_brand in brands)
+                    ]
 
                 if not filtered_stores.empty:
                     bounds = []
                     for _, store in filtered_stores.iterrows():
                         brand_html = "".join(
                             f'<span style="background-color: red; color: white; padding: 2px 4px; margin: 2px; display: inline-block;">{brand}</span>'
-                            for brand in store['銘柄']
+                            for brand in store["銘柄"]
                         )
                         popup_content = f"""
                         <b>{store['name']}</b><br>
@@ -4584,16 +4600,17 @@ elif search_mode == "最寄り駅で検索":
                         距離: {store['distance']:.2f} km
                         """
                         folium.Marker(
-                            [store['lat'], store['lon']],
+                            [store["lat"], store["lon"]],
                             popup=folium.Popup(popup_content, max_width=300),
-                            icon=folium.Icon(color="blue")
+                            icon=folium.Icon(color="blue"),
                         ).add_to(m)
-                        bounds.append((store['lat'], store['lon']))
+                        bounds.append((store["lat"], store["lon"]))
 
                     if bounds:
                         m.fit_bounds(bounds)
                 else:
                     st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
+
         else:
             st.warning("該当する駅が見つかりませんでした。")
 
