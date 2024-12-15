@@ -4,10 +4,10 @@ from streamlit_folium import st_folium
 from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
-
 import streamlit as st
+# カスタムCSSの内容を「カスタムCSS.py」から読み込み
+from カスタムCSS import custom_css
 
-# カスタムCSSを適用
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
 st.markdown("""
@@ -16,132 +16,14 @@ st.markdown("""
     </a>
     """, unsafe_allow_html=True)
 st.image("kensakup_to-map.png", use_column_width=True)
-st.markdown("""
-   <style>
-    /* 背景色を白、テキスト色を黒に設定 */
-    .stApp {
-        background-color: #ffffff !important; /* 全体の背景: 白 */
-        color: #000000 !important;           /* テキスト: 黒 */
-    }
 
-    /* ヘッダーや見出しのスタイル */
-    h1, h2, h3, h4, h5, h6 {
-        color: #000000 !important;  /* 見出しの文字色を黒 */
-    }
-
-    /* テキストやラベルのスタイル */
-    p, label {
-        color: #000000 !important;  /* テキストも黒 */
-    }
-
-    /* フォームやセレクトボックスの共通スタイル */
-    input, select {
-        background-color: #f9f9f9 !important; /* 背景: 薄いグレー */
-        color: #000000 !important;           /* 入力文字: 黒 */
-        border: 1px solid #cccccc !important; /* 枠線: 薄いグレー */
-        padding: 10px;
-        border-radius: 5px;
-    }
-
-    select {
-        -webkit-appearance: none; /* iOS Safari 対応 */
-        -moz-appearance: none;    /* Firefox 対応 */
-        appearance: none;         /* その他のブラウザ対応 */
-        background-color: #ffffff; /* 白背景 */
-  color: #000000;            /* 黒文字 */
-  border: 1px solid #cccccc; /* 枠線の色 */
-  border-radius: 4px;        /* 角を丸くする */
-  padding: 10px;             /* 内側の余白を追加 */
-    }
-
-    select:hover, input:hover {
-        border-color: #888888; /* ホバー時の枠線色 */
-    }
-
-    select:focus, input:focus {
-        outline: none;
-        border-color: #555555; /* フォーカス時の枠線色 */
-    }
-
-    /* ボタンのスタイル */
-    button {
-        background-color: #007BFF !important; /* ボタン背景: 青 */
-        color: #ffffff !important;           /* ボタン文字: 白 */
-        border: none !important;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-    }
-
-    button:hover {
-        background-color: #0056b3 !important; /* ホバー時の背景: 濃い青 */
-    }
-
-    /* カスタムリンクボタンのスタイル */
-    .stLinkButton {
-        display: inline-block;
-        padding: 10px 20px;
-        font-size: 16px;
-        font-weight: bold;
-        text-decoration: none;
-        background-color: #ffffff; /* 背景色: 白 */
-        color: #000000; /* テキスト色: 黒 */
-        border: 2px solid #ff0000; /* 枠線色: 赤 */
-        border-radius: 5px; /* 角を丸く */
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-    }
-    .stLinkButton:hover {
-        background-color: #ffcccc; /* ホバー時の背景色: 薄い赤 */
-        color: #ff0000; /* ホバー時のテキスト色: 赤 */
-    }
-
-    /* カスタムボタンのスタイル */
-    [data-baseweb="radio"] > div {
-        display: flex;
-        justify-content: center; /* 中央揃え */
-        gap: 3px; /* ボタン間の間隔 */
-        margin: 5px 0; /* 上下の余白 */
-    }
-
-    [data-baseweb="radio"] > div > label {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 10px 20px;
-        border-radius: 10px; /* ボタンを丸く */
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-        border: 2px solid transparent; /* 初期の境界線なし */
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影 */
-    }
-
-    [data-baseweb="radio"] > div > label:hover {
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* ホバー時の影 */
-    }
-
-    [data-baseweb="radio"] > div > label[data-selected="true"] {
-        background: linear-gradient(90deg, #4facfe, #00f2fe); /* グラデーション背景 */
-        color: white;
-        border: 2px solid #00f2fe;
-    }
-
-    [data-baseweb="radio"] > div > label[data-selected="false"] {
-        background: #f2f2f2; /* 非選択時の背景 */
-        color: #a6a6a6; /* 非選択時の文字色 */
-        border: 2px solid #cccccc;
-    }
-
-    [data-baseweb="radio"] > div > label[data-selected="false"]:hover {
-        background: #e6e6e6; /* ホバー時の非選択背景 */
-        color: #808080; /* ホバー時の文字色 */
-    }
-</style>
-
+# カスタムCSSを適用
+st.markdown(f"""
+    <style>
+    {custom_css}
+    </style>
     """, unsafe_allow_html=True)
+
 # 加盟店データを外部ファイルからインポート
 from 加盟店_data import 加盟店_data
 
