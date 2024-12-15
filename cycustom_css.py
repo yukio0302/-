@@ -1,4 +1,4 @@
- <style>
+ custom_css = """
         /* 背景色を白、テキスト色を黒に設定 */
         body {
             background-color: #ffffff !important;  /* 背景: 白 */
@@ -142,4 +142,4 @@ select::after {
             background-color: #ffcccc; /* ホバー時の背景色: 薄い赤 */
             color: #ff0000; /* ホバー時のテキスト色: 赤 */
         }
-    </style>
+    """
