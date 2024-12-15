@@ -223,9 +223,27 @@ if search_mode == "最寄り駅で検索":
             st.warning("該当する駅が見つかりませんでした。")
 # 追加: 入力情報クリアボタンのロジック
 st.markdown("""
-    <a href="https://7drnd3kxvrjrcucyvutntu.streamlit.app/#c898a4f7?cache=clear" target="_self" class="stLinkButton">
-        入力情報をクリアする
-    </a>
-    """, unsafe_allow_html=True)       
+    <style>
+        .small-button a {
+            font-size: 12px; /* 文字のサイズを小さく */
+            padding: 5px 10px; /* 余白を小さく */
+            margin: 5px 0; /* ボタン周囲の余白を調整 */
+            text-decoration: none; /* アンダーラインを削除 */
+            border: 1px solid #ccc; /* 枠線の追加 */
+            border-radius: 5px; /* 角を丸める */
+            background-color: #f0f0f0; /* ボタンの背景色 */
+            color: #333; /* 文字色 */
+            display: inline-block; /* インラインブロック表示 */
+        }
+        .small-button a:hover {
+            background-color: #e0e0e0; /* ホバー時の色変更 */
+        }
+    </style>
+    <div class="small-button">
+        <a href="https://7drnd3kxvrjrcucyvutntu.streamlit.app/#c898a4f7?cache=clear" target="_self">
+            入力情報をクリアする
+        </a>
+    </div>
+""", unsafe_allow_html=True)      
 # 地図のレンダリング
 st_folium(m, width=700, height=500)
