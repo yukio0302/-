@@ -47,6 +47,11 @@ st.markdown("""
         -webkit-appearance: none; /* iOS Safari 対応 */
         -moz-appearance: none;    /* Firefox 対応 */
         appearance: none;         /* その他のブラウザ対応 */
+        background-color: #ffffff; /* 白背景 */
+  color: #000000;            /* 黒文字 */
+  border: 1px solid #cccccc; /* 枠線の色 */
+  border-radius: 4px;        /* 角を丸くする */
+  padding: 10px;             /* 内側の余白を追加 */
     }
 
     select:hover, input:hover {
