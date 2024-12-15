@@ -6,7 +6,7 @@ from geopy.distance import geodesic
 import pandas as pd
 import streamlit as st
 # カスタムCSSの内容を「カスタムCSS.py」から読み込み
-from カスタムCSS import custom_css
+from custom_css import custom_css
 
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
