@@ -342,6 +342,7 @@ if search_mode == "最寄り駅で検索":
 
         else:
             st.warning("該当する駅が見つかりませんでした。")
-
+            
+st.experimental_rerun
 # 地図のレンダリング
 st_folium(m, width=700, height=500)
