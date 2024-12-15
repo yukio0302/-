@@ -305,7 +305,7 @@ if search_mode == "最寄り駅で検索":
                 for brand in brands
             )
             all_brands.add("すべての銘柄")
-            selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+            selected_brand = st.selectbox("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
 
             if selected_brand:
                 if selected_brand == "すべての銘柄":
