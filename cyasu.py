@@ -215,7 +215,7 @@ if 'nearby_stores' in locals() and not nearby_stores.empty:  # nearby_stores が
         all_brands = set()
     all_brands.add("すべての銘柄")
 
-    selected_brand = st.radio("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
+    selected_brand = st.selectbox("検索エリアの取り扱い銘柄一覧", sorted(all_brands))
 
     if selected_brand:
         if selected_brand == "すべての銘柄":
