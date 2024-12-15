@@ -8,6 +8,7 @@ import streamlit as st
 # カスタムCSS読込
 from cycustom_css import custom_css
 from cycustom_radio_css import custom_css as radio_custom_css 
+
 # 画像読込
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
@@ -17,14 +18,17 @@ st.markdown("""
     </a>
     """, unsafe_allow_html=True)
 st.image("kensakup_to-map.png", use_column_width=True)
+
 # ここでカスタムCSSを適用
 st.markdown(f"""
     <style>
     {custom_css}
     </style>
     """, unsafe_allow_html=True)
+
 # 加盟店データを外部ファイルからインポート
 from 加盟店_data import 加盟店_data
+
 # MAP情報OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
@@ -36,6 +40,7 @@ search_mode = st.radio(
     ("住所で検索", "最寄り駅で検索"),
     key="search_mode",  # ラジオボタンの選択肢を管理するキー
 )
+
 # ここでカスタムラジオボタンのCSSを適用
 st.markdown(f"""
     <style>
@@ -45,7 +50,6 @@ st.markdown(f"""
 
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
-
 
 if search_mode == "住所で検索":
     postal_code_input = st.text_input("郵便番号を入力してください（例: 123-4567）:")
@@ -125,7 +129,6 @@ if 'nearby_stores' in locals() and not nearby_stores.empty:  # nearby_stores が
                 m.fit_bounds(bounds)
         else:
             st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
-
 
 # 最寄り駅で検索の分岐
 if search_mode == "最寄り駅で検索":
