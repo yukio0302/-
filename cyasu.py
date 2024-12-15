@@ -79,7 +79,6 @@ if search_mode == "住所で検索":
             加盟店_data["distance"] = 加盟店_data.apply(
                 lambda row: geodesic((search_lat, search_lon), (row['lat'], row['lon'])).km, axis=1
             )
-
             # 10km以内の加盟店をフィルタリング
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
@@ -213,12 +212,10 @@ if search_mode == "最寄り駅で検索":
                             icon=folium.Icon(color="blue"),
                         ).add_to(m)
                         bounds.append((store["lat"], store["lon"]))
-
                     if bounds:
                         m.fit_bounds(bounds)
                 else:
                     st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
-
         else:
             st.warning("該当する駅が見つかりませんでした。")
 # 追加: 入力情報クリアボタンのロジック
