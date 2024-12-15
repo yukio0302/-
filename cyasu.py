@@ -395,6 +395,10 @@ if search_mode == "最寄り駅で検索":
         else:
             st.warning("該当する駅が見つかりませんでした。")
 # 追加: 入力情報クリアボタンのロジック
-st.link_button("情報をクリアする", "https://7drnd3kxvrjrcucyvutntu.streamlit.app/#c898a4f7?cache=clear")          
+st.markdown("""
+    <a href="https://7drnd3kxvrjrcucyvutntu.streamlit.app/#c898a4f7?cache=clear" target="_blank" class="stLinkButton">
+        入力情報をクリアする
+    </a>
+    """, unsafe_allow_html=True)       
 # 地図のレンダリング
 st_folium(m, width=700, height=500)
