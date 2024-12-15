@@ -36,7 +36,7 @@ search_mode = st.radio(
     ("住所で検索", "最寄り駅で検索"),
     key="search_mode",  # ラジオボタンの選択肢を管理するキー
 )
-# ここでカスタムCSSを適用
+# ここでカスタムラジオボタンのCSSを適用
 st.markdown(f"""
     <style>
     {radio_custom_css }
