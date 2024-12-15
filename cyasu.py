@@ -109,6 +109,37 @@ st.markdown("""
     background: #e6e6e6; /* ホバー時の非選択背景 */
     color: #808080; /* ホバー時の文字色 */
 }  
+/* スマホ表示のセレクトボックスのスタイルのみ変更 */
+select {
+  -webkit-appearance: none; /* iOS Safari, Chrome for iOS 対応 */
+  -moz-appearance: none;   /* Firefox 対応 */
+  appearance: none;        /* その他のブラウザ対応 */
+  background-color: #ffffff; /* 白背景 */
+  color: #000000;            /* 黒文字 */
+  border: 1px solid #cccccc; /* 枠線の色 */
+  border-radius: 4px;        /* 角を丸くする */
+  padding: 10px;             /* 内側の余白を追加 */
+}
+
+/* セレクトボックスのホバー効果 */
+select:hover {
+  border-color: #888888; /* ホバー時の枠線色 */
+}
+
+/* セレクトボックスのフォーカス効果 */
+select:focus {
+  outline: none;              /* デフォルトのアウトラインを消す */
+  border-color: #555555;     /* フォーカス時の枠線色 */
+}
+
+/* カスタムのドロップダウンアイコン */
+select::after {
+  content: '\25BC';          /* ▼の記号を表示 */
+  position: absolute;
+  right: 10px;
+  pointer-events: none;      /* クリックを無効化 */
+}
+
     </style>
     """, unsafe_allow_html=True)
 # 加盟店データを外部ファイルからインポート
