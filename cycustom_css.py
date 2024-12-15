@@ -1,4 +1,4 @@
- custom_css = """
+custom_css = """
         /* 背景色を白、テキスト色を黒に設定 */
         body {
             background-color: #ffffff !important;  /* 背景: 白 */
