@@ -5,9 +5,9 @@ from opencage.geocoder import OpenCageGeocode
 from geopy.distance import geodesic
 import pandas as pd
 import streamlit as st
-# カスタムCSSの内容を「カスタムCSS.py」から読み込み
+# カスタムCSS読込
 from cycustom_css import custom_css
-
+# 画像読込
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
 st.markdown("""
@@ -16,23 +16,19 @@ st.markdown("""
     </a>
     """, unsafe_allow_html=True)
 st.image("kensakup_to-map.png", use_column_width=True)
-
-# カスタムCSSを適用
+# ここでカスタムCSSを適用
 st.markdown(f"""
     <style>
     {custom_css}
     </style>
     """, unsafe_allow_html=True)
-
 # 加盟店データを外部ファイルからインポート
 from 加盟店_data import 加盟店_data
-
-# OpenCage APIの設定
+# MAP情報OpenCage APIの設定
 api_key = "d63325663fe34549885cd31798e50eb2"
 geocoder = OpenCageGeocode(api_key)
 
 st.write("郵便番号もしくは住所を入力して、10km圏内の加盟店を検索します。")
-
 # 検索モード選択
 search_mode = st.radio(
     "検索方法を選択してください：",
