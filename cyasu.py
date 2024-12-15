@@ -7,7 +7,6 @@ import pandas as pd
 import streamlit as st
 # カスタムCSS読込
 from cycustom_css import custom_css
-from cycustom_radio_css import custom_css2
 # 画像読込
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
