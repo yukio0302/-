@@ -343,7 +343,6 @@ if search_mode == "最寄り駅で検索":
         else:
             st.warning("該当する駅が見つかりませんでした。")
 # 追加: 入力情報クリアボタンのロジック
-if st.link_button("情報をクリアする", "https://7drnd3kxvrjrcucyvutntu.streamlit.app/#c898a4f7?cache=clear	")
-st.image("kensakup_to-map.png", use_column_width=True)           
+st.link_button("情報をクリアする", "https://7drnd3kxvrjrcucyvutntu.streamlit.app/#c898a4f7?cache=clear")          
 # 地図のレンダリング
 st_folium(m, width=700, height=500)
