@@ -7,6 +7,7 @@ import pandas as pd
 import streamlit as st
 # カスタムCSS読込
 from cycustom_css import custom_css
+from cycustom_radio_css import custom_css as radio_custom_css 
 # 画像読込
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
@@ -35,45 +36,12 @@ search_mode = st.radio(
     ("住所で検索", "最寄り駅で検索"),
     key="search_mode",  # ラジオボタンの選択肢を管理するキー
 )
-
-# ラジオボタンのカスタムCSSスタイルを適用
-st.markdown("""
+# ここでカスタムCSSを適用
+st.markdown(f"""
     <style>
-        .stRadio > label {
-            display: inline-block;
-            padding: 12px 24px;
-            margin: 10px;
-            border-radius: 30px;
-            font-size: 16px;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            border: 2px solid transparent;
-            text-align: center;
-        }
-        .stRadio input[type="radio"] {
-            display: none;  /* ラジオボタン自体は非表示 */
-        }
-        .stRadio input[type="radio"]:checked + label {
-            background: linear-gradient(90deg, #4facfe, #00f2fe);
-            color: #ffffff;
-            border: 2px solid #00f2fe;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .stRadio input[type="radio"]:not(:checked) + label {
-            background: #f2f2f2;
-            color: #a6a6a6;
-            border: 2px solid #cccccc;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .stRadio input[type="radio"]:not(:checked) + label:hover {
-            background: #e6e6e6;
-            color: #808080;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
+    {radio_custom_css }
     </style>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 # デフォルトの地図
 m = folium.Map(location=[35.681236, 139.767125], zoom_start=5, tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png", attr='国土地理院')
