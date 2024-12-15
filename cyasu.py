@@ -139,7 +139,24 @@ select::after {
   right: 10px;
   pointer-events: none;      /* クリックを無効化 */
 }
-
+ /* カスタムリンクボタンのスタイル */
+        .stLinkButton {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            background-color: #ffffff; /* 背景色: 白 */
+            color: #000000; /* テキスト色: 黒 */
+            border: 2px solid #ff0000; /* 枠線色: 赤 */
+            border-radius: 5px; /* 角を丸く */
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+        .stLinkButton:hover {
+            background-color: #ffcccc; /* ホバー時の背景色: 薄い赤 */
+            color: #ff0000; /* ホバー時のテキスト色: 赤 */
+        }
     </style>
     """, unsafe_allow_html=True)
 # 加盟店データを外部ファイルからインポート
