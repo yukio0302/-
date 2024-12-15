@@ -1,4 +1,3 @@
-
 custom_css = """
         .stRadio > label {
             display: inline-block;
