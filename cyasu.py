@@ -9,18 +9,24 @@ import streamlit as st
 from cycustom_css import custom_css
 from cycustom_radio_css import custom_css as radio_custom_css 
 
+# JavaScriptとCSSでヘッダーを非表示にする
 hide_streamlit_style = """
             <style>
-            /* ヘッダーと共有ボタンを隠す */
-            .css-1d391kg, .css-1v0mbdj, .css-1v0mbdj .stButton {
-                visibility: hidden;
-            }
-            
-            /* スペースの調整 */
-            .css-19bqh2r {
-                margin-top: -50px;
-            }
+            /* ヘッダーを非表示に */
+            header {visibility: hidden;}
+            footer {visibility: hidden;}
+            .css-1v0mbdj {display: none;}  /* スターアイコン等 */
+            .css-1d391kg {display: none;}  /* シェアボタン等 */
             </style>
+            <script>
+                // ページロード後にヘッダーやボタンを非表示にする
+                window.onload = function() {
+                    var header = document.querySelector('header');
+                    if (header) header.style.display = 'none';
+                    var footer = document.querySelector('footer');
+                    if (footer) footer.style.display = 'none';
+                };
+            </script>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
