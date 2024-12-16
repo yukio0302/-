@@ -9,6 +9,21 @@ import streamlit as st
 from cycustom_css import custom_css
 from cycustom_radio_css import custom_css as radio_custom_css 
 
+hide_streamlit_style = """
+            <style>
+            .css-1d391kg {
+                display: none;
+            }
+            .css-1v0mbdj {
+                display: none;
+            }
+            .css-19bqh2r {
+                display: none;
+            }
+            </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 # 画像読込
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
