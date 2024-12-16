@@ -9,17 +9,18 @@ import streamlit as st
 from cycustom_css import custom_css
 from cycustom_radio_css import custom_css as radio_custom_css 
 
-# JavaScriptとCSSでヘッダーを非表示にする
+# JavaScriptとCSSでヘッダーとフッターを非表示にする
 hide_streamlit_style = """
             <style>
-            /* ヘッダーを非表示に */
+            /* ヘッダーとフッターのスタイル */
             header {visibility: hidden;}
             footer {visibility: hidden;}
-            .css-1v0mbdj {display: none;}  /* スターアイコン等 */
-            .css-1d391kg {display: none;}  /* シェアボタン等 */
+
+            /* UI要素（共有ボタン、スターアイコンなど） */
+            .css-1v0mbdj, .css-1d391kg, .css-1bymnk9 {display: none;}
             </style>
             <script>
-                // ページロード後にヘッダーやボタンを非表示にする
+                // ページがロードされた後にヘッダーとフッターを非表示にする
                 window.onload = function() {
                     var header = document.querySelector('header');
                     if (header) header.style.display = 'none';
@@ -29,7 +30,6 @@ hide_streamlit_style = """
             </script>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
 # 画像読込
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
