@@ -15,9 +15,10 @@ hide_streamlit_style = """
             /* ヘッダーとフッターのスタイルを非表示にする */
             header {visibility: hidden;}
             footer {visibility: hidden;}
-
-            /* フッター内のリンク要素を非表示にする */
-            footer a {display: none;}
+            /* 特定のStreamlitクラスを非表示に */
+        .stDeployButton {display: none !important;}
+        .css-164nlkn {display: none !important;}
+        .css-hi6a2p {display: none !important;}
             </style>
             <script>
                 // ページがロードされた後に、フッターのリンク要素を非表示にする
