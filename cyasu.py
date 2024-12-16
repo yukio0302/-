@@ -12,20 +12,25 @@ from cycustom_radio_css import custom_css as radio_custom_css
 # JavaScriptとCSSで最下部右側のリンクを非表示にする
 hide_streamlit_style = """
             <style>
-            /* ヘッダーとフッターのスタイル */
+            /* ヘッダーとフッターのスタイルを非表示にする */
             header {visibility: hidden;}
             footer {visibility: hidden;}
+
+            /* フッター内のリンク要素を非表示にする */
+            footer a {display: none;}
             </style>
             <script>
-                // ページがロードされた後に最下部のリンクを非表示にする
+                // ページがロードされた後に、フッターのリンク要素を非表示にする
                 window.onload = function() {
-                    var footerLinks = document.querySelectorAll('.css-1m5hb7j, .css-1n76uvr');
+                    var footerLinks = document.querySelectorAll('footer a');
                     footerLinks.forEach(function(link) {
                         link.style.display = 'none';
                     });
                 };
             </script>
 """
+
+# StreamlitにカスタムCSSとJavaScriptを埋め込む
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # 画像読込
