@@ -82,7 +82,7 @@ if search_mode == "住所で検索":
             # 10km以内の加盟店をフィルタリング
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-# 検索エリアの取り扱い銘柄一覧を表示
+  # 検索エリアの取り扱い銘柄一覧を表示
 if 'nearby_stores' in locals() and not nearby_stores.empty:  # nearby_stores が定義されていて、空でない場合
     if "銘柄" in nearby_stores.columns:
         all_brands = set(
@@ -124,29 +124,12 @@ if 'nearby_stores' in locals() and not nearby_stores.empty:  # nearby_stores が
                 ).add_to(m)
                 bounds.append((store["lat"], store["lon"]))
 
-            # 修正箇所: 中心を赤いピン、ズームを適切に設定
             if bounds:
-                center_lat, center_lon = search_lat, search_lon
-                max_distance = max(geodesic((center_lat, center_lon), coord).km for coord in bounds)
-                zoom_level = 15 if max_distance <= 5 else (13 if max_distance <= 10 else (11 if max_distance <= 20 else 9))
-
-                m = folium.Map(
-                    location=[center_lat, center_lon],
-                    zoom_start=zoom_level,
-                    tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
-                    attr='国土地理院'
-                )
-                folium.Marker(
-                    [center_lat, center_lon],
-                    popup="検索地点",
-                    icon=folium.Icon(color="red", icon="info-sign")
-                ).add_to(m)
-
-                for lat, lon in bounds:
-                    folium.Marker(
-                        [lat, lon],
-                        icon=folium.Icon(color="blue"),
-                    ).add_to(m)
+                # 検索地点の座標も bounds に追加
+                bounds.append((search_lat, search_lon))  
+                m.fit_bounds(bounds, padding=(30, 30))  # 適度な余白を設定
+        else:
+            st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
 
 # 最寄り駅で検索の分岐
 if search_mode == "最寄り駅で検索":
@@ -231,31 +214,14 @@ if search_mode == "最寄り駅で検索":
                             icon=folium.Icon(color="blue"),
                         ).add_to(m)
                         bounds.append((store["lat"], store["lon"]))
-
-                    # 修正箇所: 中心を赤いピン、ズームを適切に設定
                     if bounds:
-                        center_lat, center_lon = search_lat, search_lon
-                        max_distance = max(geodesic((center_lat, center_lon), coord).km for coord in bounds)
-                        zoom_level = 15 if max_distance <= 5 else (13 if max_distance <= 10 else (11 if max_distance <= 20 else 9))
-
-                        m = folium.Map(
-                            location=[center_lat, center_lon],
-                            zoom_start=zoom_level,
-                            tiles="https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
-                            attr='国土地理院'
-                        )
-                        folium.Marker(
-                            [center_lat, center_lon],
-                            popup="検索地点",
-                            icon=folium.Icon(color="red", icon="info-sign")
-                        ).add_to(m)
-
-                        for lat, lon in bounds:
-                            folium.Marker(
-                                [lat, lon],
-                                icon=folium.Icon(color="blue"),
-                            ).add_to(m)
-
+                        # 検索地点の座標も bounds に追加
+                        bounds.append((search_lat, search_lon))  
+                        m.fit_bounds(bounds, padding=(30, 30))  # 適度な余白を設定
+                else:
+                    st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
+        else:
+            st.warning("該当する駅が見つかりませんでした。")
 # 追加: 入力情報クリアボタンのロジック
 st.markdown("""
     <style>
@@ -281,4 +247,4 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)      
 # 地図のレンダリング
-st_folium(m, width=900, height=600)
+st_folium(m, width=900, height=500)
