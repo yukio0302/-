@@ -11,14 +11,14 @@ from cycustom_radio_css import custom_css as radio_custom_css
 
 hide_streamlit_style = """
             <style>
-            .css-1d391kg {
-                display: none;
+            /* ヘッダーと共有ボタンを隠す */
+            .css-1d391kg, .css-1v0mbdj, .css-1v0mbdj .stButton {
+                visibility: hidden;
             }
-            .css-1v0mbdj {
-                display: none;
-            }
+            
+            /* スペースの調整 */
             .css-19bqh2r {
-                display: none;
+                margin-top: -50px;
             }
             </style>
 """
