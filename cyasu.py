@@ -19,7 +19,7 @@ hide_streamlit_style = """
         .stDeployButton {display: none !important;}
         .css-164nlkn {display: none !important;}
         .css-hi6a2p {display: none !important;}
-            </style>
+           """ </style>
             <script>
                 // ページがロードされた後に、フッターのリンク要素を非表示にする
                 window.onload = function() {
