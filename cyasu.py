@@ -247,4 +247,4 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)      
 # 地図のレンダリング
-st_folium(m, width=600, height=600)
+st_folium(m, width=700, height=500)
