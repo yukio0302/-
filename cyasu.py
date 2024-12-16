@@ -31,11 +31,6 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # 画像読込
 st.image("kensakup_top.png", use_column_width=True)
 st.image("kensakup_topmain.png", use_column_width=True)
-st.markdown("""
-    <a href="https://www.meimonshu.jp/modules/xfsection/article.php?articleid=377" target="_blank" class="stLinkButton">
-        立春朝搾り特設サイトはこちら
-    </a>
-    """, unsafe_allow_html=True)
 st.image("kensakup_to-map.png", use_column_width=True)
 
 # ここでカスタムCSSを適用
@@ -283,3 +278,8 @@ st.markdown("""
 
 # 地図を表示
 st_folium(m, width="100%", height=500)
+st.markdown("""
+    <a href="https://www.meimonshu.jp/modules/xfsection/article.php?articleid=377" target="_blank" class="stLinkButton">
+        立春朝搾り特設サイトはこちら
+    </a>
+    """, unsafe_allow_html=True)
