@@ -246,25 +246,5 @@ st.markdown("""
         </a>
     </div>
 """, unsafe_allow_html=True)      
-
-# JavaScriptを使って画面の幅を取得する
-st.markdown("""
-    <script>
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        window.parent.postMessage({ width: width, height: height }, "*");
-    </script>
-""", unsafe_allow_html=True)
-
-# 入力された画面サイズに基づいて設定を変更
-device_width = st.experimental_get_query_params().get("width", [None])[0]
-device_height = st.experimental_get_query_params().get("height", [None])[0]
-
-# デフォルトの地図
-m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
-
-# スマホとPCで異なる表示設定をする
-if device_width is not None and int(device_width) < 768:  # スマホの場合
-    st_folium(m, width="100%", height=500)
-else:  # PCの場合
-    st_folium(m, width=700, height=500)
+# 地図のレンダリング
+st_folium(m, width=700, height=500)
