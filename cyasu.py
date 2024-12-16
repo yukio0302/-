@@ -82,7 +82,12 @@ if search_mode == "住所で検索":
             # 10km以内の加盟店をフィルタリング
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
-  # 検索エリアの取り扱い銘柄一覧を表示
+            # 検索地点と加盟店を含む範囲で地図を調整（修正箇所）
+            bounds = [(search_lat, search_lon)]
+            bounds.extend(nearby_stores[['lat', 'lon']].values.tolist())
+            m.fit_bounds(bounds) if bounds else None
+
+# 検索エリアの取り扱い銘柄一覧を表示
 if 'nearby_stores' in locals() and not nearby_stores.empty:  # nearby_stores が定義されていて、空でない場合
     if "銘柄" in nearby_stores.columns:
         all_brands = set(
@@ -105,7 +110,7 @@ if 'nearby_stores' in locals() and not nearby_stores.empty:  # nearby_stores が
             ]
 
         if not filtered_stores.empty:
-            bounds = []
+            bounds = [(search_lat, search_lon)]  # 検索地点も含む範囲（修正箇所）
             for _, store in filtered_stores.iterrows():
                 brand_html = "".join(
                     f'<span style="background-color: red; color: white; padding: 2px 4px; margin: 2px; display: inline-block;">{brand}</span>'
@@ -123,9 +128,7 @@ if 'nearby_stores' in locals() and not nearby_stores.empty:  # nearby_stores が
                     icon=folium.Icon(color="blue"),
                 ).add_to(m)
                 bounds.append((store["lat"], store["lon"]))
-
-            if bounds:
-                m.fit_bounds(bounds)
+            m.fit_bounds(bounds)  # 地図の範囲を再設定（修正箇所）
         else:
             st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
 
@@ -176,6 +179,11 @@ if search_mode == "最寄り駅で検索":
             )
             nearby_stores = 加盟店_data[加盟店_data["distance"] <= 10]
 
+            # 検索地点と加盟店を含む範囲で地図を調整（修正箇所）
+            bounds = [(search_lat, search_lon)]
+            bounds.extend(nearby_stores[['lat', 'lon']].values.tolist())
+            m.fit_bounds(bounds) if bounds else None
+
             # 検索エリアの取り扱い銘柄一覧を表示
             all_brands = set(
                 brand for brands in nearby_stores["銘柄"]
@@ -194,7 +202,7 @@ if search_mode == "最寄り駅で検索":
                     ]
 
                 if not filtered_stores.empty:
-                    bounds = []
+                    bounds = [(search_lat, search_lon)]  # 検索地点も含む範囲（修正箇所）
                     for _, store in filtered_stores.iterrows():
                         brand_html = "".join(
                             f'<span style="background-color: red; color: white; padding: 2px 4px; margin: 2px; display: inline-block;">{brand}</span>'
@@ -212,8 +220,7 @@ if search_mode == "最寄り駅で検索":
                             icon=folium.Icon(color="blue"),
                         ).add_to(m)
                         bounds.append((store["lat"], store["lon"]))
-                    if bounds:
-                        m.fit_bounds(bounds)
+                    m.fit_bounds(bounds)  # 地図の範囲を再設定（修正箇所）
                 else:
                     st.write(f"「{selected_brand}」を取り扱う店舗はありません。")
         else:
