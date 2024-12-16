@@ -246,5 +246,23 @@ st.markdown("""
         </a>
     </div>
 """, unsafe_allow_html=True)      
-# 地図のレンダリング
-st_folium(m, width=700, height=500)
+# 地図の初期化
+m = folium.Map(location=[35.681236, 139.767125], zoom_start=5)
+
+# CSSでレスポンシブ対応（スマホで100%の幅、PCで700px）
+st.markdown("""
+    <style>
+        .st-deck .css-1v3fvcr {
+            width: 100% !important;
+            height: 500px !important;  /* 画面サイズに応じて高さを設定 */
+        }
+        @media (max-width: 768px) {
+            .st-deck .css-1v3fvcr {
+                height: 400px !important;  /* スマホ用に高さ調整 */
+            }
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# 地図を表示
+st_folium(m, width="100%", height=500)
