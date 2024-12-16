@@ -4,3 +4,7 @@ backgroundColor = "#ffffff"
 textColor = "#000000"
 primaryColor = "#000000"
 font = "sans serif"
+
+[server]
+headless=true
+enableXsrfProtection=false
